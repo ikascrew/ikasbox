@@ -10,8 +10,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ikascrew/ikabox/db"
-	"github.com/ikascrew/ikabox/util"
+	"github.com/ikascrew/ikasbox/core"
+	"github.com/ikascrew/ikasbox/db"
+	"github.com/ikascrew/ikasbox/util"
 
 	"gopkg.in/cheggaaa/pb.v1"
 )
@@ -89,7 +90,7 @@ func RegisterContent(r Register) error {
 }
 
 func registerFile(dir string, id int, f string) error {
-	v, err := ikabox.NewVideo(f)
+	v, err := ikasbox.NewVideo(f)
 	if err != nil {
 		return err
 	}
@@ -123,7 +124,7 @@ func registerFile(dir string, id int, f string) error {
 		}
 
 		//画像をリサイズ
-		r, err := ikabox.ResizeImage(*m, 256, 144)
+		r, err := core.ResizeImage(*m, 256, 144)
 		if err != nil {
 			return err
 		}
@@ -134,7 +135,7 @@ func registerFile(dir string, id int, f string) error {
 		thumb := dir + string(os.PathSeparator) + bufId + ".jpg"
 
 		//サムネイルを作成
-		err = ikabox.WriteImage(thumb, *m)
+		err = core.WriteImage(thumb, *m)
 		return nil
 	})
 

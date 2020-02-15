@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ikascrew/ikabox/db"
+	"github.com/ikascrew/ikasbox/db"
 )
 
 func groupHandler(w http.ResponseWriter, r *http.Request) {

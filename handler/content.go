@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ikascrew/ikabox/db"
+	"github.com/ikascrew/ikasbox/db"
 )
 
 type Content struct {

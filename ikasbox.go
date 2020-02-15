@@ -1,7 +1,7 @@
-package ikabox
+package ikasbox
 
 import (
-	"github.com/ikascrew/ikabox/handler"
+	"github.com/ikascrew/ikasbox/handler"
 )
 
 func Start() error {

@@ -11,7 +11,7 @@ func init() {
 
 	//TODO 設定位置から開く
 
-	db, err := sql.Open("sqlite3", "ikabox.db")
+	db, err := sql.Open("sqlite3", "ikasbox.db")
 	if err != nil {
 		panic(err)
 	}

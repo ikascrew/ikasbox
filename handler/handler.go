@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"unsafe"
 
-	"github.com/ikascrew/ikabox/db"
+	"github.com/ikascrew/ikasbox/db"
 )
 
 const TemplatePath = "templates/"
@@ -94,7 +94,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func layoutWriter(w http.ResponseWriter, o interface{}, tmpl ...string) error {
-	fmt.Println(tmpl)
+
 	args := make([]string, len(tmpl)+1)
 	for idx, elm := range tmpl {
 		args[idx] = elm

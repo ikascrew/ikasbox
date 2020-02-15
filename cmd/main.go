@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/ikascrew/ikabox"
+	"github.com/ikascrew/ikasbox"
 )
 
 func main() {
 
-	err := ikabox.Start()
+	err := ikasbox.Start()
 	if err != nil {
 		panic(err)
 	}

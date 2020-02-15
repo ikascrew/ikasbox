@@ -1,4 +1,4 @@
-module github.com/ikascrew/ikabox
+module github.com/ikascrew/ikasbox
 
 go 1.12
 
