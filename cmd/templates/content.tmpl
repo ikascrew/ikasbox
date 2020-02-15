@@ -1,0 +1,46 @@
+{{define "title"}} Content {{end}}
+{{define "content"}}
+
+<div class="mdl-grid">
+  <div class="mdl-cell mdl-cell--3-col">
+
+<table class="mdl-data-table">
+  <thead>
+    <tr>
+      <th class="mdl-data-table__cell--non-numeric"></th>
+      <th class="mdl-data-table__cell--non-numeric">Name</th>
+      <th class="mdl-data-table__cell--non-numeric">Width</th>
+      <th class="mdl-data-table__cell--non-numeric">Height</th>
+    </tr>
+  </thead>
+  <tbody>
+{{ range .ContentList }}
+    <tr>
+      <td class="mdl-data-table__cell--non-numeric"><img width="128" height="72" src="/static/images/thumb/{{.ID}}.jpg"/></td>
+      <td class="mdl-data-table__cell--non-numeric">{{.Name}}</td>
+      <td class="mdl-data-table__cell--non-numeric">{{.Width}}</td>
+      <td class="mdl-data-table__cell--non-numeric">{{.Height}}</td>
+    </tr>
+{{end}}
+  </tbody>
+</table>
+  </div>
+
+  <div class="mdl-cell mdl-cell--3-col">
+<!--
+<form method="post" action="/content/upload" enctype="multipart/form-data">
+  <div class="mdl-textfield mdl-js-textfield">
+    <input class="mdl-textfield__input" type="text" id="content_name" name="content_name">
+    <label class="mdl-textfield__label" for="content_name">Text...</label>
+    <input type="file" name="content_datum"/>
+    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" type="submit">
+      Upload
+    </button>
+  </div>
+</form>
+-->
+  </div>
+  <div class="mdl-cell mdl-cell--6-col">2</div>
+</div>
+
+{{ end }}
