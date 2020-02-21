@@ -6,8 +6,10 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"unsafe"
 )
 
+//検索
 func SearchDirectory(d string, target []string) ([]string, error) {
 
 	rtnFiles := make([]string, 0)
@@ -76,4 +78,12 @@ func SortFiles(f []string) {
 		}
 		return l1 < l2
 	})
+}
+
+func bstring(b []byte) string {
+	return *(*string)(unsafe.Pointer(&b))
+}
+
+func sbytes(s string) []byte {
+	return *(*[]byte)(unsafe.Pointer(&s))
 }

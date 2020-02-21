@@ -2,12 +2,14 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"html/template"
+	"log"
 	"net/http"
-	"unsafe"
 
+	"github.com/ikascrew/ikasbox/config"
 	"github.com/ikascrew/ikasbox/db"
+
+	"golang.org/x/xerrors"
 )
 
 const TemplatePath = "templates/"
@@ -16,12 +18,12 @@ func Listen() error {
 
 	register()
 
-	//Webを起動
-	fmt.Println("Start WebServer")
+	c := config.Get()
 
-	//TODO 設定から開く
+	serve := c.Host + ":" + c.Port
+	log.Println("ikasbox start[" + serve + "]")
 
-	return http.ListenAndServe("localhost:5555", nil)
+	return http.ListenAndServe(serve, nil)
 }
 
 func register() {
@@ -34,6 +36,8 @@ func register() {
 	http.HandleFunc("/group/add", groupAddHandler)
 	http.HandleFunc("/group/select", groupSelectHandler)
 
+	http.HandleFunc("/project/", projectListHandler)
+
 	//TODO 設定から開く
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("public/"))))
@@ -41,16 +45,7 @@ func register() {
 }
 
 func jsonResponse(w http.ResponseWriter, obj interface{}) error {
-	//Header
 	return json.NewEncoder(w).Encode(obj)
-}
-
-func bstring(b []byte) string {
-	return *(*string)(unsafe.Pointer(&b))
-}
-
-func sbytes(s string) []byte {
-	return *(*[]byte)(unsafe.Pointer(&s))
 }
 
 type Home struct {
@@ -64,11 +59,12 @@ type MenuGroup struct {
 
 var gMenuGroup *MenuGroup
 
-func GetMenuGroup() *MenuGroup {
+func GetMenuGroup() (*MenuGroup, error) {
+
 	if gMenuGroup == nil {
 		groups, err := db.SelectGroup()
 		if err != nil {
-			panic(err)
+			return nil, xerrors.Errorf("select group: %w", err)
 		}
 		selection := &db.Group{
 			ID:   -1,
@@ -79,17 +75,22 @@ func GetMenuGroup() *MenuGroup {
 			List:      groups,
 		}
 	}
-	return gMenuGroup
+
+	return gMenuGroup, nil
 }
 
 func topHandler(w http.ResponseWriter, r *http.Request) {
-	menuGroup := GetMenuGroup()
+
+	menuGroup, err := GetMenuGroup()
+	if err != nil {
+	}
+
 	obj := &Home{
 		MenuGroup: menuGroup,
 	}
-	err := layoutWriter(w, obj, TemplatePath+"top.tmpl")
+
+	err = layoutWriter(w, obj, TemplatePath+"top.tmpl")
 	if err != nil {
-		panic(err)
 	}
 }
 
@@ -104,5 +105,6 @@ func layoutWriter(w http.ResponseWriter, o interface{}, tmpl ...string) error {
 	if err != nil {
 		return err
 	}
+
 	return t.Execute(w, o)
 }

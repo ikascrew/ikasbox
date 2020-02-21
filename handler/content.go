@@ -16,7 +16,10 @@ type Content struct {
 
 func contentHandler(w http.ResponseWriter, r *http.Request) {
 
-	menu := GetMenuGroup()
+	menu, err := GetMenuGroup()
+	if err != nil {
+	}
+
 	gId := menu.Selection.ID
 
 	contentList, err := db.SelectContent(gId)
@@ -30,7 +33,6 @@ func contentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err = layoutWriter(w, obj, TemplatePath+"content.tmpl")
 	if err != nil {
-		panic(err)
 	}
 }
 
@@ -56,14 +58,20 @@ func contentUploadHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("content_name=", name)
 
 	now := time.Now()
+	menu, err := GetMenuGroup()
+	if err != nil {
+	}
+
+	menuId := menu.Selection.ID
+
 	content := db.Content{
 		Name:      name,
-		GroupId:   GetMenuGroup().Selection.ID,
+		GroupId:   menuId,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
 
-	err := db.Transaction(func(tx *sql.Tx) error {
+	err = db.Transaction(func(tx *sql.Tx) error {
 
 		_, arErr := content.Save(false)
 		if arErr != nil {
@@ -89,12 +97,17 @@ func contentUploadHandler(w http.ResponseWriter, r *http.Request) {
 		*/
 		return nil
 	})
+
 	if err != nil {
-		panic(err)
+
+	}
+
+	menuGroup, err := GetMenuGroup()
+	if err != nil {
 	}
 
 	obj := Content{
-		MenuGroup: GetMenuGroup(),
+		MenuGroup: menuGroup,
 	}
 	err = layoutWriter(w, obj, TemplatePath+"content.tmpl")
 	if err != nil {

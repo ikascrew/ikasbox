@@ -1,4 +1,4 @@
-{{define "title"}} Content {{end}}
+{{define "title"}} Project {{end}}
 {{define "content"}}
 
 <div class="mdl-grid">
@@ -7,22 +7,24 @@
 <table class="mdl-data-table">
   <thead>
     <tr>
-      <th class="mdl-data-table__cell--non-numeric"></th>
       <th class="mdl-data-table__cell--non-numeric">Name</th>
       <th class="mdl-data-table__cell--non-numeric">Width</th>
       <th class="mdl-data-table__cell--non-numeric">Height</th>
     </tr>
   </thead>
+
   <tbody>
-{{ range .ContentList }}
+
+{{ range .ProjectList }}
     <tr>
-      <td class="mdl-data-table__cell--non-numeric"><img width="128" height="72" src="/static/images/thumb/{{.ID}}.jpg"/></td>
       <td class="mdl-data-table__cell--non-numeric">{{.Name}}</td>
       <td class="mdl-data-table__cell--non-numeric">{{.Width}}</td>
       <td class="mdl-data-table__cell--non-numeric">{{.Height}}</td>
     </tr>
 {{end}}
+
   </tbody>
+
 </table>
   </div>
 
@@ -39,6 +41,7 @@
   </div>
 </form>
 -->
+
   </div>
   <div class="mdl-cell mdl-cell--6-col">2</div>
 </div>

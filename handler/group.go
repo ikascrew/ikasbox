@@ -39,7 +39,10 @@ func groupSelectHandler(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	menuGroup := GetMenuGroup()
+	menuGroup, err := GetMenuGroup()
+	if err != nil {
+	}
+
 	var group *db.Group
 	for _, elm := range menuGroup.List {
 		if elm.ID == intId {

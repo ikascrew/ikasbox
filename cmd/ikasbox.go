@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ikascrew/ikasbox/core"
+	"github.com/ikascrew/core"
 	"github.com/ikascrew/ikasbox/db"
 	"github.com/ikascrew/ikasbox/util"
 
@@ -18,12 +18,13 @@ import (
 )
 
 func main() {
+
 	reg := Register{
-		//Path : "D:\\VJ\\20170819",
-		Path: "D:\\movie",
+		Path: "D:\\movie\\VJ\\1280x720",
 		Ext:  []string{"*.mp4"},
 		Blob: false,
 	}
+
 	err := RegisterContent(reg)
 	if err != nil {
 		panic(err)
@@ -74,6 +75,7 @@ func RegisterContent(r Register) error {
 	bar := pb.StartNew(len(files)).Prefix("Register Content")
 
 	//work := r.Path + string(os.PathSeparator) + ".ikabox"
+
 	thumb := path.Join("public", "images", "thumb")
 	os.MkdirAll(thumb, 0777)
 
@@ -90,7 +92,8 @@ func RegisterContent(r Register) error {
 }
 
 func registerFile(dir string, id int, f string) error {
-	v, err := ikasbox.NewVideo(f)
+
+	v, err := core.NewVideo(f)
 	if err != nil {
 		return err
 	}
@@ -118,7 +121,7 @@ func registerFile(dir string, id int, f string) error {
 			UpdatedAt: now,
 		}
 
-		_, arErr := c.SaveTx(tx)
+		_, arErr := c.Save()
 		if arErr != nil {
 			return err
 		}

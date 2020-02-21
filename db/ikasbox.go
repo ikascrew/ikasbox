@@ -4,14 +4,17 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/ikascrew/ikasbox/config"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func init() {
 
-	//TODO 設定位置から開く
+	c := config.Get()
+	dbfile := c.DatabasePath
 
-	db, err := sql.Open("sqlite3", "ikasbox.db")
+	db, err := sql.Open("sqlite3", dbfile)
 	if err != nil {
 		panic(err)
 	}

@@ -20,6 +20,7 @@ func SelectGroup() ([]*Group, error) {
 	}
 	return groups, err
 }
+
 func FindGroup(id int) (*Group, error) {
 	return Group{}.Find(id)
 }
