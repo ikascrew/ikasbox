@@ -14,6 +14,7 @@ import (
 	"github.com/ikascrew/ikasbox/db"
 	"github.com/ikascrew/ikasbox/util"
 
+	"gocv.io/x/gocv"
 	"gopkg.in/cheggaaa/pb.v1"
 )
 
@@ -98,14 +99,25 @@ func registerFile(dir string, id int, f string) error {
 		return err
 	}
 
+	frames := float64(v.Frames)
+	images := make([]*gocv.Mat, 17)
 	//半分の位置を取得
-	m, err := v.GetImage(float64(v.Frames) / 2.0)
+	m, err := v.GetImage(frames / 2.0)
 	if err != nil {
 		return err
 	}
-	defer m.Close()
+
+	images[0] = m
+	for idx := 1; idx <= 16; idx++ {
+		i, err := v.GetImage(frames / 16.0 * float64(idx))
+		if err != nil {
+			return err
+		}
+		images[idx] = i
+	}
 
 	db.Transaction(func(tx *sql.Tx) error {
+
 		now := time.Now()
 		//コンテンツを登録
 		c := db.Content{
@@ -134,11 +146,25 @@ func registerFile(dir string, id int, f string) error {
 		defer r.Close()
 
 		bufId := strconv.FormatInt(int64(c.ID), 10)
-		//グループのパスに設定
-		thumb := dir + string(os.PathSeparator) + bufId + ".jpg"
 
-		//サムネイルを作成
-		err = core.WriteImage(thumb, *m)
+		for idx, img := range images {
+
+			ext := fmt.Sprintf("_%d.jpg", idx)
+			if idx == 0 {
+				ext = ".jpg"
+			}
+
+			//グループのパスに設定
+			thumb := dir + string(os.PathSeparator) + bufId + ext
+
+			if !img.Empty() {
+				//サムネイルを作成
+				err = core.WriteImage(thumb, *img)
+				img.Close()
+			}
+
+		}
+
 		return nil
 	})
 
