@@ -19,6 +19,8 @@ func init() {
 		panic(err)
 	}
 	Use(db)
+
+	LogMode(c.Debug)
 }
 
 func Transaction(fn func(tx *sql.Tx) error) (err error) {

@@ -6,13 +6,13 @@ import (
 
 //+AR
 type Project struct {
-	ID        string    `json:"id" db:"pk"`
-	Name      string    `json:"name"`
-	Width     int       `json:"width"`
-	Height    int       `json:"height"`
-	Default   int       `json:"default"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID             int       `json:"id" db:"pk"`
+	Name           string    `json:"name"`
+	Width          int       `json:"width"`
+	Height         int       `json:"height"`
+	DefaultContent int       `json:"default"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 func SelectProject() ([]*Project, error) {

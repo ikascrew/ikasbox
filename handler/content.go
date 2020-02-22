@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -18,13 +19,14 @@ func contentHandler(w http.ResponseWriter, r *http.Request) {
 
 	menu, err := GetMenuGroup()
 	if err != nil {
+		log.Println(err)
 	}
 
 	gId := menu.Selection.ID
 
 	contentList, err := db.SelectContent(gId)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 
 	obj := Content{
@@ -33,6 +35,7 @@ func contentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err = layoutWriter(w, obj, TemplatePath+"content.tmpl")
 	if err != nil {
+		log.Println(err)
 	}
 }
 
@@ -104,6 +107,7 @@ func contentUploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	menuGroup, err := GetMenuGroup()
 	if err != nil {
+		log.Println(err)
 	}
 
 	obj := Content{
@@ -111,6 +115,6 @@ func contentUploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	err = layoutWriter(w, obj, TemplatePath+"content.tmpl")
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }

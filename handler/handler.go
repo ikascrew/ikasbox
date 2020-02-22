@@ -37,6 +37,8 @@ func register() {
 	http.HandleFunc("/group/select", groupSelectHandler)
 
 	http.HandleFunc("/project/", projectListHandler)
+	http.HandleFunc("/project/add", projectAddHandler)
+	http.HandleFunc("/project/content/list/", projectContentListHandler)
 
 	//TODO 設定から開く
 
@@ -83,6 +85,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 
 	menuGroup, err := GetMenuGroup()
 	if err != nil {
+		log.Println(err)
 	}
 
 	obj := &Home{
@@ -91,6 +94,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = layoutWriter(w, obj, TemplatePath+"top.tmpl")
 	if err != nil {
+		log.Println(err)
 	}
 }
 

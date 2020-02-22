@@ -22,7 +22,7 @@ func (m *Project) newRelation() *ProjectRelation {
 		"name",
 		"width",
 		"height",
-		"default",
+		"default_content",
 		"created_at",
 		"updated_at",
 	)
@@ -47,11 +47,11 @@ func (r *ProjectRelation) Select(columns ...string) *ProjectRelation {
 	return r
 }
 
-func (m Project) Find(id string) (*Project, error) {
+func (m Project) Find(id int) (*Project, error) {
 	return m.newRelation().Find(id)
 }
 
-func (r *ProjectRelation) Find(id string) (*Project, error) {
+func (r *ProjectRelation) Find(id int) (*Project, error) {
 	return r.FindBy("id", id)
 }
 
@@ -165,13 +165,13 @@ type ProjectParams Project
 
 func (m Project) Build(p ProjectParams) *Project {
 	return &Project{
-		ID:        p.ID,
-		Name:      p.Name,
-		Width:     p.Width,
-		Height:    p.Height,
-		Default:   p.Default,
-		CreatedAt: p.CreatedAt,
-		UpdatedAt: p.UpdatedAt,
+		ID:             p.ID,
+		Name:           p.Name,
+		Width:          p.Width,
+		Height:         p.Height,
+		DefaultContent: p.DefaultContent,
+		CreatedAt:      p.CreatedAt,
+		UpdatedAt:      p.UpdatedAt,
 	}
 }
 
@@ -198,12 +198,12 @@ func (m *Project) Save(validate ...bool) (bool, *ar.Errors) {
 	errs := &ar.Errors{}
 	if m.IsNewRecord() {
 		ins := ar.NewInsert(db, logger).Table("projects").Params(map[string]interface{}{
-			"name":       m.Name,
-			"width":      m.Width,
-			"height":     m.Height,
-			"default":    m.Default,
-			"created_at": m.CreatedAt,
-			"updated_at": m.UpdatedAt,
+			"name":            m.Name,
+			"width":           m.Width,
+			"height":          m.Height,
+			"default_content": m.DefaultContent,
+			"created_at":      m.CreatedAt,
+			"updated_at":      m.UpdatedAt,
 		})
 
 		if result, err := ins.Exec(); err != nil {
@@ -211,19 +211,19 @@ func (m *Project) Save(validate ...bool) (bool, *ar.Errors) {
 			return false, errs
 		} else {
 			if lastId, err := result.LastInsertId(); err == nil {
-				m.ID = string(lastId)
+				m.ID = int(lastId)
 			}
 		}
 		return true, nil
 	} else {
 		upd := ar.NewUpdate(db, logger).Table("projects").Params(map[string]interface{}{
-			"id":         m.ID,
-			"name":       m.Name,
-			"width":      m.Width,
-			"height":     m.Height,
-			"default":    m.Default,
-			"created_at": m.CreatedAt,
-			"updated_at": m.UpdatedAt,
+			"id":              m.ID,
+			"name":            m.Name,
+			"width":           m.Width,
+			"height":          m.Height,
+			"default_content": m.DefaultContent,
+			"created_at":      m.CreatedAt,
+			"updated_at":      m.UpdatedAt,
 		}).Where("id", m.ID)
 
 		if _, err := upd.Exec(); err != nil {
@@ -248,8 +248,8 @@ func (m *Project) Update(p ProjectParams) (bool, *ar.Errors) {
 	if !ar.IsZero(p.Height) {
 		m.Height = p.Height
 	}
-	if !ar.IsZero(p.Default) {
-		m.Default = p.Default
+	if !ar.IsZero(p.DefaultContent) {
+		m.DefaultContent = p.DefaultContent
 	}
 	if !ar.IsZero(p.CreatedAt) {
 		m.CreatedAt = p.CreatedAt
@@ -274,8 +274,8 @@ func (m *Project) UpdateColumns(p ProjectParams) (bool, *ar.Errors) {
 	if !ar.IsZero(p.Height) {
 		m.Height = p.Height
 	}
-	if !ar.IsZero(p.Default) {
-		m.Default = p.Default
+	if !ar.IsZero(p.DefaultContent) {
+		m.DefaultContent = p.DefaultContent
 	}
 	if !ar.IsZero(p.CreatedAt) {
 		m.CreatedAt = p.CreatedAt
@@ -362,8 +362,8 @@ func (m *Project) fieldValueByName(name string) interface{} {
 		return m.Width
 	case "height", "projects.height":
 		return m.Height
-	case "default", "projects.default":
-		return m.Default
+	case "default_content", "projects.default_content":
+		return m.DefaultContent
 	case "created_at", "projects.created_at":
 		return m.CreatedAt
 	case "updated_at", "projects.updated_at":
@@ -383,8 +383,8 @@ func (m *Project) fieldPtrByName(name string) interface{} {
 		return &m.Width
 	case "height", "projects.height":
 		return &m.Height
-	case "default", "projects.default":
-		return &m.Default
+	case "default_content", "projects.default_content":
+		return &m.DefaultContent
 	case "created_at", "projects.created_at":
 		return &m.CreatedAt
 	case "updated_at", "projects.updated_at":
@@ -418,7 +418,7 @@ func (m *Project) columnNames() []string {
 		"name",
 		"width",
 		"height",
-		"default",
+		"default_content",
 		"created_at",
 		"updated_at",
 	}

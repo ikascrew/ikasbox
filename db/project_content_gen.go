@@ -160,6 +160,37 @@ func (m ProjectContent) IsValid() (bool, *ar.Errors) {
 	return result, errors
 }
 
+func (m *ProjectContent) Content() (*Content, error) {
+	asc := m.belongsToContent()
+	pk := "id"
+	fk := "content_id"
+	if asc != nil && asc.PrimaryKey != "" {
+		pk = asc.PrimaryKey
+	}
+	if asc != nil && asc.ForeignKey != "" {
+		fk = asc.ForeignKey
+	}
+	return Content{}.Where(pk, m.fieldValueByName(fk)).QueryRow()
+}
+
+func (m ProjectContent) JoinsContent() *ProjectContentRelation {
+	return m.newRelation().JoinsContent()
+}
+
+func (r *ProjectContentRelation) JoinsContent() *ProjectContentRelation {
+	asc := r.src.belongsToContent()
+	pk := "id"
+	fk := "content_id"
+	if asc != nil && asc.PrimaryKey != "" {
+		pk = asc.PrimaryKey
+	}
+	if asc != nil && asc.ForeignKey != "" {
+		fk = asc.ForeignKey
+	}
+	r.Relation.InnerJoin("contents", fmt.Sprintf("contents.%s = project_contents.%s", pk, fk))
+	return r
+}
+
 type ProjectContentParams ProjectContent
 
 func (m ProjectContent) Build(p ProjectContentParams) *ProjectContent {

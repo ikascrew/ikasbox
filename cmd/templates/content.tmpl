@@ -7,6 +7,7 @@
 <table class="mdl-data-table">
   <thead>
     <tr>
+      <th class="mdl-data-table__cell--non-numeric"></th>
       <th class="mdl-data-table__cell--non-numeric">Name</th>
       <th class="mdl-data-table__cell--non-numeric">Width</th>
       <th class="mdl-data-table__cell--non-numeric">Height</th>
@@ -15,8 +16,9 @@
 
   <tbody>
 
-{{ range .ProjectList }}
+{{ range .ContentList }}
     <tr>
+      <td class="mdl-data-table__cell--non-numeric"><img width="128" height="72" src="/static/images/thumb/{{.ID}}.jpg"></td>
       <td class="mdl-data-table__cell--non-numeric">{{.Name}}</td>
       <td class="mdl-data-table__cell--non-numeric">{{.Width}}</td>
       <td class="mdl-data-table__cell--non-numeric">{{.Height}}</td>

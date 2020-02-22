@@ -59,6 +59,7 @@ function selectGroup(e) {
     var data = {
         id : selectId
     };
+
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4 ) {
             groupSpinner.classList.remove('is-active');
