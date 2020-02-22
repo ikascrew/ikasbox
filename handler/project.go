@@ -75,8 +75,15 @@ func projectAddHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type ProjectResponse struct {
-	Project  *db.Project   `json:"project"`
-	Contents []*db.Content `json:"contents"`
+	Project  *db.Project       `json:"project"`
+	Contents []*ProjectContent `json:"contents"`
+}
+
+type ProjectContent struct {
+	ID        int    `json:"id"`
+	ContentID int    `json:"content_id"`
+	Name      string `json:"name"`
+	Path      string `json:"path"`
 }
 
 func projectContentListHandler(w http.ResponseWriter, r *http.Request) {
@@ -92,13 +99,21 @@ func projectContentListHandler(w http.ResponseWriter, r *http.Request) {
 
 	res := ProjectResponse{}
 	res.Project = project
-	res.Contents = make([]*db.Content, len(contentList))
+	res.Contents = make([]*ProjectContent, len(contentList))
 
 	for idx, elm := range contentList {
+
 		con, err := elm.Content()
 		if err != nil {
 		}
-		res.Contents[idx] = con
+
+		pc := ProjectContent{
+			ID:        elm.ID,
+			ContentID: elm.ContentID,
+			Name:      con.Name,
+			Path:      con.Path,
+		}
+		res.Contents[idx] = &pc
 	}
 
 	err = jsonResponse(w, res)
