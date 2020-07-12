@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ikascrew/core"
+	"github.com/ikascrew/core/util"
 	"github.com/ikascrew/ikasbox/db"
-	"github.com/ikascrew/ikasbox/util"
+	own "github.com/ikascrew/ikasbox/util"
 
 	"gocv.io/x/gocv"
 	"gopkg.in/cheggaaa/pb.v1"
@@ -21,7 +21,7 @@ import (
 func main() {
 
 	reg := Register{
-		Path: "D:\\movie\\VJ\\1280x720",
+		Path: "C:\\Users\\secon\\Desktop\\1280x720",
 		Ext:  []string{"*.mp4"},
 		Blob: false,
 	}
@@ -46,12 +46,12 @@ func RegisterContent(r Register) error {
 		return err
 	}
 
-	files, err := util.SearchDirectory(r.Path, r.Ext)
+	files, err := own.SearchDirectory(r.Path, r.Ext)
 	if err != nil {
 		return err
 	}
 
-	util.SortFiles(files)
+	own.SortFiles(files)
 	if len(files) <= 0 {
 		return nil
 	}
@@ -94,7 +94,7 @@ func RegisterContent(r Register) error {
 
 func registerFile(dir string, id int, f string) error {
 
-	v, err := core.NewVideo(f)
+	v, err := util.NewVideo(f)
 	if err != nil {
 		return err
 	}
@@ -139,7 +139,7 @@ func registerFile(dir string, id int, f string) error {
 		}
 
 		//画像をリサイズ
-		r, err := core.ResizeImage(*m, 256, 144)
+		r, err := util.ResizeImage(*m, 256, 144)
 		if err != nil {
 			return err
 		}
@@ -159,7 +159,7 @@ func registerFile(dir string, id int, f string) error {
 
 			if !img.Empty() {
 				//サムネイルを作成
-				err = core.WriteImage(thumb, *img)
+				err = util.WriteImage(thumb, *img)
 				img.Close()
 			}
 
