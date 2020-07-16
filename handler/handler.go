@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -20,7 +21,7 @@ func Listen() error {
 
 	c := config.Get()
 
-	serve := c.Host + ":" + c.Port
+	serve := fmt.Sprintf("%s:%d", c.Host, c.Port)
 	log.Println("ikasbox start[" + serve + "]")
 
 	return http.ListenAndServe(serve, nil)
@@ -43,7 +44,6 @@ func register() {
 	//TODO 設定から開く
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("public/"))))
-
 }
 
 func jsonResponse(w http.ResponseWriter, obj interface{}) error {

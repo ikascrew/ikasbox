@@ -19,8 +19,10 @@ func SearchDirectory(d string, target []string) ([]string, error) {
 	}
 
 	for _, elm := range files {
+
 		if elm.IsDir() {
 			childPath := filepath.Join(d, elm.Name())
+
 			rtn, err := SearchDirectory(childPath, target)
 			if err != nil {
 				return nil, err
@@ -30,8 +32,8 @@ func SearchDirectory(d string, target []string) ([]string, error) {
 			fName := elm.Name()
 			appFlag := false
 			if target != nil {
-				for _, elm := range target {
-					reg := regexp.MustCompile("(\\s" + elm + "$)")
+				for _, ext := range target {
+					reg := regexp.MustCompile("(\\s" + ext + "$)")
 					if reg.Match([]byte(fName)) {
 						appFlag = true
 						break
@@ -40,6 +42,7 @@ func SearchDirectory(d string, target []string) ([]string, error) {
 			} else {
 				appFlag = true
 			}
+
 			if appFlag {
 				name := filepath.Join(d, fName)
 				rtnFiles = append(rtnFiles, name)

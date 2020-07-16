@@ -3,14 +3,18 @@ package main
 import (
 	"bufio"
 	"database/sql"
+	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ikascrew/core/util"
+	"github.com/ikascrew/ikasbox/config"
 	"github.com/ikascrew/ikasbox/db"
 	own "github.com/ikascrew/ikasbox/util"
 
@@ -18,15 +22,35 @@ import (
 	"gopkg.in/cheggaaa/pb.v1"
 )
 
+var dbfile *string
+
+func init() {
+	dbfile = flag.String("db", "ikasbox.db", "sqlite database file")
+}
+
 func main() {
 
+	flag.Parse()
+
+	args := flag.Args()
+	if len(args) <= 0 {
+		log.Println("argument error")
+		os.Exit(1)
+	}
+
+	err := config.Set(config.Path(*dbfile))
+	if err != nil {
+		panic(err)
+	}
+
+	//引数でインポートする
 	reg := Register{
-		Path: "C:\\Users\\secon\\Desktop\\1280x720",
-		Ext:  []string{"*.mp4"},
+		Path: args[0],
+		Ext:  []string{"*.mp4", "*.mpeg", "*.png", "*.jpg", "*.jpeg"},
 		Blob: false,
 	}
 
-	err := RegisterContent(reg)
+	err = RegisterContent(reg)
 	if err != nil {
 		panic(err)
 	}
@@ -95,6 +119,7 @@ func RegisterContent(r Register) error {
 func registerFile(dir string, id int, f string) error {
 
 	v, err := util.NewVideo(f)
+
 	if err != nil {
 		return err
 	}
@@ -108,6 +133,7 @@ func registerFile(dir string, id int, f string) error {
 	}
 
 	images[0] = m
+
 	for idx := 1; idx <= 16; idx++ {
 		i, err := v.GetImage(frames / 16.0 * float64(idx))
 		if err != nil {
@@ -139,11 +165,11 @@ func registerFile(dir string, id int, f string) error {
 		}
 
 		//画像をリサイズ
-		r, err := util.ResizeImage(*m, 256, 144)
-		if err != nil {
-			return err
-		}
-		defer r.Close()
+		//r, err := util.ResizeImage(*m, 256, 144)
+		//if err != nil {
+		//return err
+		//}
+		//defer r.Close()
 
 		bufId := strconv.FormatInt(int64(c.ID), 10)
 
@@ -160,15 +186,33 @@ func registerFile(dir string, id int, f string) error {
 			if !img.Empty() {
 				//サムネイルを作成
 				err = util.WriteImage(thumb, *img)
-				img.Close()
+				if err != nil {
+					return err
+				}
+
+				if !isImage(f) {
+					img.Close()
+				}
 			}
 
 		}
 
+		if isImage(f) {
+			m.Close()
+		}
 		return nil
 	})
 
 	return err
+}
+
+func isImage(f string) bool {
+	if strings.Index(f, ".jpg") != -1 ||
+		strings.Index(f, ".jpeg") != -1 ||
+		strings.Index(f, ".png") != -1 {
+		return true
+	}
+	return false
 }
 
 func ChooseGroup() (int, error) {

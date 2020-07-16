@@ -4,7 +4,7 @@ go 1.12
 
 require (
 	github.com/fatih/color v1.9.0 // indirect
-	github.com/ikascrew/core v0.0.0-20200711005828-838e85f7a2c4
+	github.com/ikascrew/core v0.0.0-20200716052809-d71df6c3b3f2
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/monochromegane/argen v0.0.0-20150711140148-c37112f9dc50
