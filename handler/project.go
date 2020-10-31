@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ikascrew/ikasbox/db"
+	. "github.com/ikascrew/ikasbox/handler/internal"
 )
 
 func projectListHandler(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +26,7 @@ func projectListHandler(w http.ResponseWriter, r *http.Request) {
 		MenuGroup   *MenuGroup
 	}{list, menuGroup}
 
-	layoutWriter(w, dto, TemplatePath+"project_list.tmpl")
+	Template(w, dto, "project_list.tmpl")
 	if err != nil {
 	}
 }

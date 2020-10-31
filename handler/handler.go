@@ -3,17 +3,15 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 
+	"golang.org/x/xerrors"
+
 	"github.com/ikascrew/ikasbox/config"
 	"github.com/ikascrew/ikasbox/db"
-
-	"golang.org/x/xerrors"
+	. "github.com/ikascrew/ikasbox/handler/internal"
 )
-
-const TemplatePath = "templates/"
 
 func Listen() error {
 
@@ -31,8 +29,10 @@ func register() {
 
 	http.HandleFunc("/", topHandler)
 	http.HandleFunc("/content/", contentHandler)
-	http.HandleFunc("/content/upload", contentUploadHandler)
-	//http.HandleFunc("/content/view/",contentViewHandler)
+	//http.HandleFunc("/content/upload", contentUploadHandler)
+	http.HandleFunc("/content/view/", contentViewHandler)
+	http.HandleFunc("/content/media/", contentPlayHandler)
+
 	http.HandleFunc("/group/", groupHandler)
 	http.HandleFunc("/group/add", groupAddHandler)
 	http.HandleFunc("/group/select", groupSelectHandler)
@@ -92,23 +92,11 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		MenuGroup: menuGroup,
 	}
 
-	err = layoutWriter(w, obj, TemplatePath+"top.tmpl")
+	err = Template(w, obj, "top.tmpl")
 	if err != nil {
-		log.Println(err)
-	}
-}
+		ErrorPage(w, "Template error", err, 500)
 
-func layoutWriter(w http.ResponseWriter, o interface{}, tmpl ...string) error {
-
-	args := make([]string, len(tmpl)+1)
-	for idx, elm := range tmpl {
-		args[idx] = elm
-	}
-	args[len(tmpl)] = TemplatePath + "layout.tmpl"
-	t, err := template.New("layout").ParseFiles(args...)
-	if err != nil {
-		return err
 	}
 
-	return t.Execute(w, o)
+	return
 }

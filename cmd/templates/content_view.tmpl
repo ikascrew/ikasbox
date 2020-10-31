@@ -1,0 +1,39 @@
+{{define "title"}} Project {{end}}
+{{define "content"}}
+
+<video src="/content/media/{{.Content.ID}}" poster="/static/images/thumb/{{.Content.ID}}.jpg" width="{{.Width}}" height="{{.Height}}" controls></video>
+
+<table class="mdl-data-table">
+  <tbody>
+    <tr>
+      <td>ID</td>
+      <td>{{.Content.ID}}</td>
+    </tr>
+    <tr>
+      <td>Name</td>
+      <td>{{.Content.Name}}</td>
+    </tr>
+    <tr>
+      <td>Path</td>
+      <td>{{.Content.Path}}</td>
+    </tr>
+    <tr>
+      <td>Size</td>
+      <td>{{.Content.Width}} x {{ .Content.Height }}</td>
+    </tr>
+
+    <tr>
+      <td>FPS Frames</td>
+      <td>{{.Content.FPS}} {{.Content.Frames}}</td>
+    </tr>
+
+    <tr>
+      <td>Fourcc</td>
+      <td>{{.Content.Fourcc}}</td>
+    </tr>
+
+  </tbody>
+</table>
+
+
+{{ end }}
