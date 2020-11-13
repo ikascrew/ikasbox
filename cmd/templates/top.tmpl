@@ -2,6 +2,7 @@
 {{ define "content" }}
 
 <div class="mdl-grid">
+
   <div class="mdl-cell mdl-cell--12-col">
   <pre>
 
@@ -10,24 +11,16 @@
 
   I am in the form of "Web", but I also have several commands.
 
-  Import Command
-  ikasbox import -ext {*.mp4,*.mpeg,*.wmv} -b
+  ikasbox start
 
-  {PATH} is Import Directory
+  ikasbox group list 
+  ikasbox group add {path}
+  ikasbox group check {id} import and delete
+  ikasbox group move {path}
 
-  -ext  is Import extention(default *)
-
-  -blob is Database save blob data(default false=Reference by PATH
-
-
-  Add Group
-  ikasbox groupadd
-
-  Delete Group
-  ikasbox groupdelete
-
-
-
+  ikasbox project list 
+  ikasbox project add {id}
+  ikasbox project delete {id}
 
   </pre>
   </div>

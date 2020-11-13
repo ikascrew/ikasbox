@@ -70,11 +70,13 @@ func RegisterContent(r Register) error {
 		return err
 	}
 
+	//ファイルの検索
 	files, err := own.SearchDirectory(r.Path, r.Ext)
 	if err != nil {
 		return err
 	}
 
+	//ファイルのソート
 	own.SortFiles(files)
 	if len(files) <= 0 {
 		return nil
