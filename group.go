@@ -1,9 +1,8 @@
-package main
+package ikasbox
 
 import (
 	"bufio"
 	"database/sql"
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -17,52 +16,40 @@ import (
 	"github.com/ikascrew/ikasbox/config"
 	"github.com/ikascrew/ikasbox/db"
 	own "github.com/ikascrew/ikasbox/util"
-
 	"gocv.io/x/gocv"
+	"golang.org/x/xerrors"
 	"gopkg.in/cheggaaa/pb.v1"
 )
 
-var dbfile *string
+func setGroup() error {
 
-func init() {
-	dbfile = flag.String("db", "ikasbox.db", "sqlite database file")
-}
-
-func main() {
-
-	flag.Parse()
-
-	args := flag.Args()
-	if len(args) <= 0 {
-		log.Println("argument error")
-		os.Exit(1)
+	conf := config.Get()
+	var err error
+	switch conf.Function {
+	case "register":
+		err = fmt.Errorf("not implemented.")
+	case "import":
+		err = importContent(conf.Arguments[0])
+	case "check":
+		err = check()
+	case "list":
+		err = fmt.Errorf("not implemented.")
+	case "remove":
+		err = fmt.Errorf("not implemented.")
+	default:
+		err = fmt.Errorf("not found function")
 	}
 
-	err := config.Set(config.Path(*dbfile))
 	if err != nil {
-		panic(err)
+		return xerrors.Errorf("function error[%s]: %w", conf.Function, err)
 	}
 
-	//引数でインポートする
-	reg := Register{
-		Path: args[0],
-		Ext:  []string{"*.mp4", "*.mpeg", "*.png", "*.jpg", "*.jpeg"},
-		Blob: false,
-	}
-
-	err = RegisterContent(reg)
-	if err != nil {
-		panic(err)
-	}
+	return nil
 }
 
-type Register struct {
-	Path string
-	Ext  []string
-	Blob bool
-}
+func importContent(p string) error {
 
-func RegisterContent(r Register) error {
+	conf := config.Get()
 
 	//グループの一覧を表示
 	group, err := ChooseGroup()
@@ -71,7 +58,7 @@ func RegisterContent(r Register) error {
 	}
 
 	//ファイルの検索
-	files, err := own.SearchDirectory(r.Path, r.Ext)
+	files, err := own.SearchDirectory(p, conf.Extensions)
 	if err != nil {
 		return err
 	}
@@ -79,11 +66,11 @@ func RegisterContent(r Register) error {
 	//ファイルのソート
 	own.SortFiles(files)
 	if len(files) <= 0 {
-		return nil
+		return fmt.Errorf("file not found[%s]", p)
 	}
-	fmt.Printf("[%s] target files[%d]. Register?[Y/n]:", r.Path, len(files))
+	fmt.Printf("[%s] target files[%d]. Register?[Y/n]:", p, len(files))
 
-	in := Input()
+	in := input()
 	if in != "Y" {
 		return nil
 	}
@@ -94,7 +81,7 @@ func RegisterContent(r Register) error {
 	}
 
 	now := time.Now()
-	_, arErr := g.Update(db.GroupParams{Path: r.Path, UpdatedAt: now})
+	_, arErr := g.Update(db.GroupParams{Path: p, UpdatedAt: now})
 	if arErr != nil {
 		return err
 	}
@@ -232,7 +219,7 @@ func ChooseGroup() (int, error) {
 		fmt.Printf("[%d] %s\n", idx+1, elm.Name)
 	}
 	fmt.Printf("Select[ %d - %d ] :", 1, len(groups))
-	in := Input()
+	in := input()
 
 	idx, err := strconv.Atoi(in)
 	if err != nil {
@@ -247,9 +234,63 @@ func ChooseGroup() (int, error) {
 	return groups[idx-1].ID, nil
 }
 
-func Input() string {
+func input() string {
 	std := bufio.NewScanner(os.Stdin)
 	std.Scan()
 	text := std.Text()
 	return text
+}
+
+func check() error {
+	//コンテンツの全件取得
+	//パスにコンテンツがあるか？
+	contents, err := getContents()
+	if err != nil {
+		return xerrors.Errorf("content all: %w", err)
+	}
+
+	//プログレスバーを表示
+	nothings, err := checkContent(contents)
+	if err != nil {
+		return xerrors.Errorf("check: %w", err)
+	}
+
+	if len(nothings) > 0 {
+		for _, con := range nothings {
+			fmt.Printf("%d:%s(%s)\n", con.ID, con.Name, con.Path)
+		}
+
+		log.Printf("nothing %d/all %d Delete?[Y/n]:", len(nothings), len(contents))
+
+		//delete?
+		if ans := input(); ans == "Y" {
+			return fmt.Errorf("not implemented")
+		}
+
+	} else {
+		log.Println("exists all")
+	}
+
+	return nil
+}
+
+func getContents() ([]*db.Content, error) {
+	contents, err := db.SelectContent(-1)
+	if err != nil {
+		return nil, xerrors.Errorf("select content error: %w", err)
+	}
+
+	return contents, nil
+}
+
+func checkContent(all []*db.Content) ([]*db.Content, error) {
+
+	nothings := make([]*db.Content, 0, len(all))
+	for _, content := range all {
+		if _, err := os.Stat(content.Path); err != nil {
+			nothings = append(nothings, content)
+		}
+	}
+
+	return nothings, nil
 }

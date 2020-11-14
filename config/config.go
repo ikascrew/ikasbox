@@ -12,6 +12,12 @@ type Config struct {
 	Port int
 
 	Debug bool
+
+	Extensions []string
+
+	SubCommand string
+	Function   string
+	Arguments  []string
 }
 
 var gConfig *Config = nil
