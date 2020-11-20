@@ -21,6 +21,7 @@ func (m *Content) newRelation() *ContentRelation {
 		"id",
 		"group_id",
 		"name",
+		"type",
 		"path",
 		"width",
 		"height",
@@ -172,6 +173,7 @@ func (m Content) Build(p ContentParams) *Content {
 		ID:        p.ID,
 		GroupId:   p.GroupId,
 		Name:      p.Name,
+		Type:      p.Type,
 		Path:      p.Path,
 		Width:     p.Width,
 		Height:    p.Height,
@@ -208,6 +210,7 @@ func (m *Content) Save(validate ...bool) (bool, *ar.Errors) {
 		ins := ar.NewInsert(db, logger).Table("contents").Params(map[string]interface{}{
 			"group_id":   m.GroupId,
 			"name":       m.Name,
+			"type":       m.Type,
 			"path":       m.Path,
 			"width":      m.Width,
 			"height":     m.Height,
@@ -232,6 +235,7 @@ func (m *Content) Save(validate ...bool) (bool, *ar.Errors) {
 			"id":         m.ID,
 			"group_id":   m.GroupId,
 			"name":       m.Name,
+			"type":       m.Type,
 			"path":       m.Path,
 			"width":      m.Width,
 			"height":     m.Height,
@@ -260,6 +264,9 @@ func (m *Content) Update(p ContentParams) (bool, *ar.Errors) {
 	}
 	if !ar.IsZero(p.Name) {
 		m.Name = p.Name
+	}
+	if !ar.IsZero(p.Type) {
+		m.Type = p.Type
 	}
 	if !ar.IsZero(p.Path) {
 		m.Path = p.Path
@@ -298,6 +305,9 @@ func (m *Content) UpdateColumns(p ContentParams) (bool, *ar.Errors) {
 	}
 	if !ar.IsZero(p.Name) {
 		m.Name = p.Name
+	}
+	if !ar.IsZero(p.Type) {
+		m.Type = p.Type
 	}
 	if !ar.IsZero(p.Path) {
 		m.Path = p.Path
@@ -400,6 +410,8 @@ func (m *Content) fieldValueByName(name string) interface{} {
 		return m.GroupId
 	case "name", "contents.name":
 		return m.Name
+	case "type", "contents.type":
+		return m.Type
 	case "path", "contents.path":
 		return m.Path
 	case "width", "contents.width":
@@ -429,6 +441,8 @@ func (m *Content) fieldPtrByName(name string) interface{} {
 		return &m.GroupId
 	case "name", "contents.name":
 		return &m.Name
+	case "type", "contents.type":
+		return &m.Type
 	case "path", "contents.path":
 		return &m.Path
 	case "width", "contents.width":
@@ -473,6 +487,7 @@ func (m *Content) columnNames() []string {
 		"id",
 		"group_id",
 		"name",
+		"type",
 		"path",
 		"width",
 		"height",

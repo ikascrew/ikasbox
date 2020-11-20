@@ -1,7 +1,9 @@
 package util
 
 import (
+	"bufio"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -89,4 +91,11 @@ func bstring(b []byte) string {
 
 func sbytes(s string) []byte {
 	return *(*[]byte)(unsafe.Pointer(&s))
+}
+
+func Input() string {
+	std := bufio.NewScanner(os.Stdin)
+	std.Scan()
+	text := std.Text()
+	return text
 }

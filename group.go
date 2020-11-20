@@ -1,12 +1,12 @@
 package ikasbox
 
 import (
-	"bufio"
+	"bytes"
 	"database/sql"
 	"fmt"
+	"image/jpeg"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -32,7 +32,7 @@ func setGroup() error {
 
 	switch conf.Function {
 	case "register":
-		err = fmt.Errorf("not implemented.")
+		err = registerGroup(conf.Arguments[0])
 	case "import":
 		err = importContent(conf.Arguments[0])
 	case "check":
@@ -63,20 +63,38 @@ func viewGroups() ([]*db.Group, error) {
 	return groups, nil
 }
 
+func registerGroup(name string) error {
+
+	group := db.Group{
+		Name:      name,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	_, err := group.Save(true)
+	if err != nil {
+		return xerrors.Errorf("register group: %w", err)
+	}
+
+	fmt.Printf("New Group:%s[%d]\n", name, group.ID)
+
+	return nil
+}
+
 func importContent(p string) error {
 
 	conf := config.Get()
 
 	//グループの一覧を表示
-	group, err := ChooseGroup()
+	id, err := ChooseGroup()
 	if err != nil {
-		return err
+		return xerrors.Errorf("choose group: %w", err)
 	}
 
 	//ファイルの検索
 	files, err := own.SearchDirectory(p, conf.Extensions)
 	if err != nil {
-		return err
+		return xerrors.Errorf("search directory: %w", err)
 	}
 
 	//ファイルのソート
@@ -86,33 +104,28 @@ func importContent(p string) error {
 	}
 	fmt.Printf("[%s] target files[%d]. Register?[Y/n]:", p, len(files))
 
-	in := input()
+	in := own.Input()
 	if in != "Y" {
 		return nil
 	}
 
-	g, err := db.FindGroup(group)
+	g, err := db.FindGroup(id)
 	if err != nil {
-		return err
+		return xerrors.Errorf("find group: %w", err)
 	}
 
 	now := time.Now()
 	_, arErr := g.Update(db.GroupParams{Path: p, UpdatedAt: now})
 	if arErr != nil {
-		return err
+		return xerrors.Errorf("group update: %w", err)
 	}
 
 	bar := pb.StartNew(len(files)).Prefix("Register Content")
 
-	//work := r.Path + string(os.PathSeparator) + ".ikabox"
-
-	thumb := path.Join("public", "images", "thumb")
-	os.MkdirAll(thumb, 0777)
-
 	for _, elm := range files {
-		err := registerFile(thumb, group, elm)
+		err := registerFile(id, elm)
 		if err != nil {
-			fmt.Printf("Error Register[%s][%s]\n", elm, err)
+			return xerrors.Errorf("Error Register[%s]: %w", elm, err)
 		}
 		bar.Increment()
 	}
@@ -121,12 +134,17 @@ func importContent(p string) error {
 	return nil
 }
 
-func registerFile(dir string, id int, f string) error {
+func registerFile(id int, f string) error {
 
+	//TODO FileかImageかを拡張子でやっていると思うのでだめ
 	v, err := util.NewVideo(f)
-
 	if err != nil {
-		return err
+		return xerrors.Errorf("load video[%s]: %w", f, err)
+	}
+
+	typ := "file"
+	if isImage(f) {
+		typ = "image"
 	}
 
 	frames := float64(v.Frames)
@@ -134,20 +152,19 @@ func registerFile(dir string, id int, f string) error {
 	//半分の位置を取得
 	m, err := v.GetImage(frames / 2.0)
 	if err != nil {
-		return err
+		return xerrors.Errorf("get image(root): %w", err)
 	}
 
 	images[0] = m
-
-	for idx := 1; idx <= 16; idx++ {
-		i, err := v.GetImage(frames / 16.0 * float64(idx))
+	for idx := 0; idx <= 15; idx++ {
+		i, err := v.GetImage(frames/16.0*float64(idx) + 1)
 		if err != nil {
-			return err
+			return xerrors.Errorf("get image(%d): %w", idx, err)
 		}
-		images[idx] = i
+		images[idx+1] = i
 	}
 
-	db.Transaction(func(tx *sql.Tx) error {
+	err = db.Transaction(func(tx *sql.Tx) error {
 
 		now := time.Now()
 		//コンテンツを登録
@@ -155,6 +172,7 @@ func registerFile(dir string, id int, f string) error {
 			GroupId:   id,
 			Name:      filepath.Base(f),
 			Path:      f,
+			Type:      typ,
 			Width:     v.Width,
 			Height:    v.Height,
 			FPS:       v.FPS,
@@ -166,40 +184,38 @@ func registerFile(dir string, id int, f string) error {
 
 		_, arErr := c.Save()
 		if arErr != nil {
-			return err
+			return xerrors.Errorf("content save: %w", err)
 		}
 
-		//画像をリサイズ
-		//r, err := util.ResizeImage(*m, 256, 144)
-		//if err != nil {
-		//return err
-		//}
-		//defer r.Close()
-
-		bufId := strconv.FormatInt(int64(c.ID), 10)
-
 		for idx, img := range images {
-
-			ext := fmt.Sprintf("_%d.jpg", idx)
-			if idx == 0 {
-				ext = ".jpg"
-			}
-
-			//グループのパスに設定
-			thumb := dir + string(os.PathSeparator) + bufId + ext
-
 			if !img.Empty() {
-				//サムネイルを作成
-				err = util.WriteImage(thumb, *img)
+
+				thumb := db.ContentThumbnail{}
+
+				thumb.ID = c.ID
+				thumb.Seq = idx
+				goimg, err := img.ToImage()
 				if err != nil {
-					return err
+					return xerrors.Errorf("mat to image: %w", err)
+				}
+
+				buf := new(bytes.Buffer)
+				err = jpeg.Encode(buf, goimg, nil)
+				if err != nil {
+					return xerrors.Errorf("convert image: %w", err)
+				}
+
+				thumb.Data = buf.Bytes()
+
+				err = thumb.Insert()
+				if err != nil {
+					return xerrors.Errorf("thumbnail insert: %w", err)
 				}
 
 				if !isImage(f) {
 					img.Close()
 				}
 			}
-
 		}
 
 		if isImage(f) {
@@ -208,7 +224,11 @@ func registerFile(dir string, id int, f string) error {
 		return nil
 	})
 
-	return err
+	if err != nil {
+		return xerrors.Errorf("register content: %w", err)
+	}
+
+	return nil
 }
 
 func isImage(f string) bool {
@@ -224,21 +244,20 @@ func ChooseGroup() (int, error) {
 
 	groups, err := viewGroups()
 	if err != nil {
-		return -1, err
+		return -1, xerrors.Errorf("view Groups: %w", err)
 	}
 
 	groupMap := make(map[int]*db.Group)
 	for _, elm := range groups {
-		fmt.Printf("ID[%d] %s\n", elm.ID, elm.Name)
 		groupMap[elm.ID] = elm
 	}
 
 	fmt.Printf("Select GroupID :")
-	in := input()
+	in := own.Input()
 
 	id, err := strconv.Atoi(in)
 	if err != nil {
-		return -1, err
+		return -1, xerrors.Errorf("input id error: %w", err)
 	}
 
 	if g, ok := groupMap[id]; ok {
@@ -247,13 +266,6 @@ func ChooseGroup() (int, error) {
 	}
 	return -1, fmt.Errorf("Error ID[%d]", id)
 
-}
-
-func input() string {
-	std := bufio.NewScanner(os.Stdin)
-	std.Scan()
-	text := std.Text()
-	return text
 }
 
 func check() error {
@@ -278,7 +290,7 @@ func check() error {
 		log.Printf("nothing %d/all %d Delete?[Y/n]:", len(nothings), len(contents))
 
 		//delete?
-		if ans := input(); ans == "Y" {
+		if ans := own.Input(); ans == "Y" {
 			return fmt.Errorf("not implemented")
 		}
 

@@ -9,6 +9,7 @@ CREATE TABLE [CONTENTS] (
     [id] INTEGER PRIMARY KEY AUTOINCREMENT,
     [group_id] INTEGER,
     [name] VARCHAR(128) NOT NULL,
+    [type] VARCHAR(32),
     [path] VARCHAR(1024),
     [width] INTEGER,
     [height] INTEGER,
@@ -26,6 +27,7 @@ type Content struct {
 	GroupId int `json:"group_id"`
 	//Type      string    `json:"type"`
 	Name      string    `json:"name"`
+	Type      string    `json:"type"`
 	Path      string    `json:"path"`
 	Width     int       `json:"width"`
 	Height    int       `json:"height"`

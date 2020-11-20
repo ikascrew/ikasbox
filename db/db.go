@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/ikascrew/ikasbox/config"
 	"golang.org/x/xerrors"
@@ -41,7 +40,7 @@ func Transaction(fn func(tx *sql.Tx) error) (err error) {
 		}
 		rec := recover()
 		if rec != nil {
-			err = fmt.Errorf("Panic: %w", err)
+			err = xerrors.Errorf("tx recover error: %w", rec)
 			tx.Rollback()
 			return
 		}
