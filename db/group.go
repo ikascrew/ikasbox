@@ -4,6 +4,15 @@ import (
 	"time"
 )
 
+const CreateGroupsSQL = `
+CREATE TABLE [GROUPS] (
+    [id] INTEGER PRIMARY KEY AUTOINCREMENT,
+    [name] VARCHAR(64) NOT NULL,
+    [path] VARCHAR(512) DEFAULT '',
+    [created_at] DATETIME,
+    [updated_at] DATETIME
+)`
+
 //+AR
 type Group struct {
 	ID        int       `json:"id" db:"pk"`

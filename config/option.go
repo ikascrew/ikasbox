@@ -36,7 +36,7 @@ func Argument(args []string) Option {
 
 		conf.SubCommand = args[0]
 
-		if conf.SubCommand != "start" {
+		if conf.SubCommand != "start" && conf.SubCommand != "init" {
 			if len(args) < 2 {
 				return fmt.Errorf("ikasbox [%s] command argument required.")
 			}

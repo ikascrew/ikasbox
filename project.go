@@ -12,7 +12,11 @@ import (
 
 func setProject() error {
 
-	var err error
+	err := db.Open()
+	if err != nil {
+		return xerrors.Errorf("Database Open : %w", err)
+	}
+
 	conf := config.Get()
 	args := conf.Arguments
 

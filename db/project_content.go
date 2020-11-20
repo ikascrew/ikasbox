@@ -4,8 +4,19 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/monochromegane/argen"
+	ar "github.com/monochromegane/argen"
 )
+
+const CreateProjectContentsSQL = `
+CREATE TABLE [PROJECT_CONTENTS] (
+    [id] INTEGER PRIMARY KEY AUTOINCREMENT,
+    [project_id] INTEGER NOT NULL,
+    [content_id] INTEGER NOT NULL,
+    [type] VARCHAR(256) NOT NULL,
+    [created_at] DATETIME,
+    [updated_at] DATETIME
+)
+`
 
 //+AR
 type ProjectContent struct {

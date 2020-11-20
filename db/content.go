@@ -4,6 +4,22 @@ import (
 	"time"
 )
 
+const CreateContentsSQL = `
+CREATE TABLE [CONTENTS] (
+    [id] INTEGER PRIMARY KEY AUTOINCREMENT,
+    [group_id] INTEGER,
+    [name] VARCHAR(128) NOT NULL,
+    [path] VARCHAR(1024),
+    [width] INTEGER,
+    [height] INTEGER,
+    [fps] REAL,
+    [frames] INTEGER,
+    [fourcc] REAL,
+    [created_at] DATETIME,
+    [updated_at] DATETIME
+)
+`
+
 //+AR
 type Content struct {
 	ID      int `json:"id" db:"pk"`

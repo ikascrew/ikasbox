@@ -2,6 +2,15 @@ package db
 
 import "golang.org/x/xerrors"
 
+const CreateContentThumbnailsSQL = `
+CREATE TABLE "CONTENT_THUMBNAILS" (
+    [ID] INTEGER,
+    [SEQ] INTEGER,
+    [DATA] BLOB,
+  PRIMARY KEY([ID],[SEQ])
+)
+`
+
 //Argen で[]byteが使えないぽいので個別に書き込む
 type ContentThumbnail struct {
 	ID   int

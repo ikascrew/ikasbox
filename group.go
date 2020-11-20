@@ -23,8 +23,13 @@ import (
 
 func setGroup() error {
 
+	err := db.Open()
+	if err != nil {
+		return xerrors.Errorf("Database Open : %w", err)
+	}
+
 	conf := config.Get()
-	var err error
+
 	switch conf.Function {
 	case "register":
 		err = fmt.Errorf("not implemented.")
