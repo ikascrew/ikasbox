@@ -7,6 +7,7 @@ import (
 
 	"github.com/ikascrew/ikasbox"
 	"github.com/ikascrew/ikasbox/config"
+	"golang.org/x/xerrors"
 )
 
 var dbfile *string
@@ -40,7 +41,7 @@ func run(args []string) error {
 	err := ikasbox.Start(opts...)
 
 	if err != nil {
-		return fmt.Errorf("ikasbox command error: %w", err)
+		return xerrors.Errorf("ikasbox command error: %w", err)
 	}
 
 	return nil

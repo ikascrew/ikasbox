@@ -33,7 +33,7 @@ func setGroup() error {
 	case "check":
 		err = check()
 	case "list":
-		err = fmt.Errorf("not implemented.")
+		_, err = viewGroups()
 	case "remove":
 		err = fmt.Errorf("not implemented.")
 	default:
@@ -45,6 +45,17 @@ func setGroup() error {
 	}
 
 	return nil
+}
+
+func viewGroups() ([]*db.Group, error) {
+	groups, err := db.SelectGroup()
+	if err != nil {
+		return nil, xerrors.Errorf("select group: %w", err)
+	}
+	for _, elm := range groups {
+		fmt.Printf("[%d] %s\n", elm.ID, elm.Name)
+	}
+	return groups, nil
 }
 
 func importContent(p string) error {
@@ -206,32 +217,31 @@ func isImage(f string) bool {
 
 func ChooseGroup() (int, error) {
 
-	groups, err := db.SelectGroup()
+	groups, err := viewGroups()
 	if err != nil {
 		return -1, err
 	}
 
-	if len(groups) == 0 {
-		return -1, fmt.Errorf("Group not exists")
+	groupMap := make(map[int]*db.Group)
+	for _, elm := range groups {
+		fmt.Printf("ID[%d] %s\n", elm.ID, elm.Name)
+		groupMap[elm.ID] = elm
 	}
 
-	for idx, elm := range groups {
-		fmt.Printf("[%d] %s\n", idx+1, elm.Name)
-	}
-	fmt.Printf("Select[ %d - %d ] :", 1, len(groups))
+	fmt.Printf("Select GroupID :")
 	in := input()
 
-	idx, err := strconv.Atoi(in)
+	id, err := strconv.Atoi(in)
 	if err != nil {
 		return -1, err
 	}
 
-	if idx <= 0 || idx > len(groups) {
-		return -1, fmt.Errorf("Error Index value.")
+	if g, ok := groupMap[id]; ok {
+		fmt.Printf("Register group[%s]\n", g.Name)
+		return g.ID, nil
 	}
+	return -1, fmt.Errorf("Error ID[%d]", id)
 
-	fmt.Printf("Register group[%s]\n", groups[idx-1].Name)
-	return groups[idx-1].ID, nil
 }
 
 func input() string {

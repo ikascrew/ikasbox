@@ -14,19 +14,31 @@ func setProject() error {
 
 	var err error
 	conf := config.Get()
-
 	args := conf.Arguments
+
 	switch conf.Function {
-	case "list":
-		//project list
-	case "register":
-		err = registerProject(args[0])
-	case "add":
+	case "list", "add":
+		var projects []*db.Project
+		projects, err = viewProjects()
+
+		if conf.Function == "list" {
+			break
+		}
+
 		pId, err := strconv.Atoi(args[0])
 		if err != nil {
 			return fmt.Errorf("project id error: %w", err)
 		}
-		err = addContent(pId, args[1:]...)
+
+		for _, elm := range projects {
+			if elm.ID == pId {
+				err = addContent(pId, args[1:]...)
+				break
+			}
+		}
+
+	case "register":
+		err = registerProject(args[0])
 	default:
 		err = fmt.Errorf("sub command error[%s]", conf.Function)
 	}
@@ -36,6 +48,21 @@ func setProject() error {
 	}
 
 	return nil
+}
+
+func viewProjects() ([]*db.Project, error) {
+
+	projects, err := db.SelectProject()
+	if err != nil {
+		return nil, xerrors.Errorf("select project: %w", err)
+	}
+
+	for _, elm := range projects {
+		fmt.Printf("[%d]:%s\n", elm.ID, elm.Name)
+	}
+
+	return projects, nil
+
 }
 
 func registerProject(name string) error {

@@ -39,7 +39,7 @@ func Transaction(fn func(tx *sql.Tx) error) (err error) {
 		}
 		rec := recover()
 		if rec != nil {
-			err = fmt.Errorf("Panic=", err)
+			err = fmt.Errorf("Panic: %w", err)
 			tx.Rollback()
 			return
 		}
