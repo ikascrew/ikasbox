@@ -42,6 +42,7 @@ func register() {
 	http.HandleFunc("/project/content/list/", projectContentListHandler)
 
 	//TODO 設定から開く
+	http.HandleFunc("/thumb/", thumbnailHandler)
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("public/"))))
 }

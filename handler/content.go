@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"strings"
 
 	"github.com/ikascrew/ikasbox/db"
 	. "github.com/ikascrew/ikasbox/handler/internal"
@@ -114,6 +115,56 @@ func contentPlayHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//w.Write(sbytes(datum.Content))
+}
+
+func thumbnailHandler(w http.ResponseWriter, r *http.Request) {
+
+	url := r.URL.String()
+	us := strings.Split(url, "/")
+
+	if len(us) < 3 {
+		ErrorPage(w, "Thumbnail not found", fmt.Errorf("url[%s]", url), 404)
+		return
+	}
+
+	idbuf := us[2]
+	id, err := strconv.Atoi(idbuf)
+	if err != nil {
+		ErrorPage(w, "thumbnail id error", err, 400)
+		return
+	}
+
+	seq := 0
+
+	if len(us) >= 4 {
+		seqbuf := us[3]
+		seq, err = strconv.Atoi(seqbuf)
+		if err != nil {
+			ErrorPage(w, "thumbnail seq error", err, 400)
+			return
+		}
+	}
+
+	thumb := db.NewContentThumbnail()
+	thumb.ID = id
+	thumb.Seq = seq
+
+	err = thumb.Load()
+	if err != nil {
+		ErrorPage(w, "thumbnail database not found", err, 404)
+		return
+	}
+
+	if thumb.Data == nil {
+		ErrorPage(w, "thumbnail data is nil", fmt.Errorf("database error"), 404)
+		return
+	}
+
+	_, err = w.Write(thumb.Data)
+	if err != nil {
+		ErrorPage(w, "thumbnail write error", err, 404)
+		return
+	}
 }
 
 /*
