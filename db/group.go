@@ -2,6 +2,8 @@ package db
 
 import (
 	"time"
+
+	"golang.org/x/xerrors"
 )
 
 const CreateGroupsSQL = `
@@ -22,14 +24,23 @@ type Group struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+func NewGroup() *Group {
+	g := Group{}
+	return &g
+}
+
 func SelectGroup() ([]*Group, error) {
 	groups, err := Group{}.Order("id", "asc").All().Query()
 	if err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("select group: %w", err)
 	}
-	return groups, err
+	return groups, nil
 }
 
 func FindGroup(id int) (*Group, error) {
-	return Group{}.Find(id)
+	g, err := Group{}.Find(id)
+	if err != nil {
+		return nil, xerrors.Errorf("find group: %w", err)
+	}
+	return g, nil
 }

@@ -4,7 +4,9 @@ import (
 	"time"
 )
 
-const CreateContentsSQL = `
+const (
+	ContentPageNum    = 100
+	CreateContentsSQL = `
 CREATE TABLE [CONTENTS] (
     [id] INTEGER PRIMARY KEY AUTOINCREMENT,
     [group_id] INTEGER,
@@ -20,12 +22,12 @@ CREATE TABLE [CONTENTS] (
     [updated_at] DATETIME
 )
 `
+)
 
 //+AR
 type Content struct {
-	ID      int `json:"id" db:"pk"`
-	GroupId int `json:"group_id"`
-	//Type      string    `json:"type"`
+	ID        int       `json:"id" db:"pk"`
+	GroupId   int       `json:"group_id"`
 	Name      string    `json:"name"`
 	Type      string    `json:"type"`
 	Path      string    `json:"path"`
@@ -38,9 +40,10 @@ type Content struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-const (
-	ContentPageNum = 100
-)
+func NewContent() *Content {
+	c := Content{}
+	return &c
+}
 
 func SelectContent(gId int) ([]*Content, error) {
 	if gId == -1 {

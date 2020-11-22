@@ -5,20 +5,24 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/ikascrew/ikasbox/db"
 	. "github.com/ikascrew/ikasbox/handler/internal"
+	"golang.org/x/xerrors"
 )
 
 func projectListHandler(w http.ResponseWriter, r *http.Request) {
 
 	list, err := db.SelectProject()
 	if err != nil {
+		ErrorPage(w, "select project error", err, 500)
+		return
 	}
 
 	menuGroup, err := GetMenuGroup()
 	if err != nil {
+		ErrorPage(w, "menu group error", err, 500)
+		return
 	}
 
 	dto := struct {
@@ -26,65 +30,20 @@ func projectListHandler(w http.ResponseWriter, r *http.Request) {
 		MenuGroup   *MenuGroup
 	}{list, menuGroup}
 
-	Template(w, dto, "project_list.tmpl")
+	err = Template(w, dto, "project_list.tmpl")
 	if err != nil {
+		ErrorPage(w, "template error", err, 500)
+		return
 	}
 }
 
 func projectAddHandler(w http.ResponseWriter, r *http.Request) {
 
-	r.ParseForm()
-
-	project := db.Project{
-		Name:      r.FormValue("name"),
-		Width:     1280,
-		Height:    720,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	_, arerr := project.Save(true)
-	if arerr != nil {
-		log.Println(arerr)
-	}
-
-	//選択してあるグループでプロジェクトのコンテンツを登録
-	gId, err := strconv.Atoi(r.FormValue("group"))
-	if err != nil {
-		log.Println(err)
-	}
-
-	contentList, err := db.SelectContent(gId)
-	if arerr != nil {
-		log.Println(arerr)
-	}
-
-	for _, elm := range contentList {
-		content := db.ProjectContent{
-			ProjectID: project.ID,
-			ContentID: elm.ID,
-			Type:      "file",
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		}
-		_, arerr := content.Save(false)
-		if err != nil {
-			log.Println(arerr)
-		}
-	}
-
 }
 
 type ProjectResponse struct {
-	Project  *db.Project       `json:"project"`
-	Contents []*ProjectContent `json:"contents"`
-}
-
-type ProjectContent struct {
-	ID        int    `json:"id"`
-	ContentID int    `json:"content_id"`
-	Name      string `json:"name"`
-	Path      string `json:"path"`
+	Project  *db.Project   `json:"project"`
+	Contents []*db.Content `json:"contents"`
 }
 
 func projectContentListHandler(w http.ResponseWriter, r *http.Request) {
@@ -92,30 +51,17 @@ func projectContentListHandler(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.String()
 	pathS := strings.Split(path, "/")
 
-	id := pathS[4]
+	idbuf := pathS[4]
+	id, err := strconv.Atoi(idbuf)
 
-	project, contentList, err := db.SelectProjectContentList(id)
+	contentList, err := db.SelectProjectContentList(id)
 	if err != nil {
+		xerrors.Errorf("select project content list : $w")
 	}
 
 	res := ProjectResponse{}
-	res.Project = project
-	res.Contents = make([]*ProjectContent, len(contentList))
-
-	for idx, elm := range contentList {
-
-		con, err := elm.Content()
-		if err != nil {
-		}
-
-		pc := ProjectContent{
-			ID:        elm.ID,
-			ContentID: elm.ContentID,
-			Name:      con.Name,
-			Path:      con.Path,
-		}
-		res.Contents[idx] = &pc
-	}
+	//res.Project = project
+	res.Contents = contentList
 
 	err = jsonResponse(w, res)
 	if err != nil {

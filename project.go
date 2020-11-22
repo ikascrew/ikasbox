@@ -7,6 +7,7 @@ import (
 
 	"github.com/ikascrew/ikasbox/config"
 	"github.com/ikascrew/ikasbox/db"
+	"github.com/ikascrew/ikasbox/util"
 	"golang.org/x/xerrors"
 )
 
@@ -22,24 +23,14 @@ func setProject() error {
 
 	switch conf.Function {
 	case "list", "add":
+
 		var projects []*db.Project
 		projects, err = viewProjects()
-
 		if conf.Function == "list" {
 			break
 		}
 
-		pId, err := strconv.Atoi(args[0])
-		if err != nil {
-			return fmt.Errorf("project id error: %w", err)
-		}
-
-		for _, elm := range projects {
-			if elm.ID == pId {
-				err = addContent(pId, args[1:]...)
-				break
-			}
-		}
+		err = inputProject(projects)
 
 	case "register":
 		err = registerProject(args[0])
@@ -71,17 +62,41 @@ func viewProjects() ([]*db.Project, error) {
 
 func registerProject(name string) error {
 
+	var err error
+	width := 1280
+	height := 720
+
+	fmt.Print("Width[1280]:")
+	in := util.Input()
+
+	if in != "" {
+		width, err = strconv.Atoi(in)
+		if err != nil {
+			return xerrors.Errorf("input width: %w", err)
+		}
+	}
+
+	fmt.Print("Height[720]:")
+	in = util.Input()
+
+	if in != "" {
+		height, err = strconv.Atoi(in)
+		if err != nil {
+			return xerrors.Errorf("input height: %w", err)
+		}
+	}
+
 	project := db.Project{
 		Name:      name,
-		Width:     1280,
-		Height:    720,
+		Width:     width,
+		Height:    height,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
 
-	_, err := project.Save(true)
-	if err != nil {
-		return xerrors.Errorf("register project: %w", err)
+	_, arerr := project.Save(true)
+	if arerr != nil {
+		return xerrors.Errorf("register project: %w", arerr)
 	}
 
 	fmt.Printf("New Project:%s[%d]\n", name, project.ID)
@@ -89,45 +104,77 @@ func registerProject(name string) error {
 	return nil
 }
 
-func addContent(pId int, groups ...string) error {
+func addProjectGroup(pId, gId int) error {
 
-	for _, buf := range groups {
-		gId, err := strconv.Atoi(buf)
-		if err != nil {
-			return fmt.Errorf("project id error(%s): %w", buf, err)
-		}
+	var err error
 
-		err = addProjectContent(gId, pId)
-		if err != nil {
-			return xerrors.Errorf("register project error(%d): %w", gId, err)
-		}
+	pg := db.NewProjectGroup()
+
+	pg.ID = pId
+	pg.GroupID = gId
+	pg.CreatedAt = time.Now()
+	pg.UpdatedAt = time.Now()
+
+	_, arerr := pg.Save(false)
+	if arerr != nil {
+		return xerrors.Errorf("content save: %w", err)
 	}
 
 	return nil
 }
 
-func addProjectContent(gId, pId int) error {
+func inputProject(projects []*db.Project) error {
 
-	var err error
+	fmt.Print("Select Project ID:")
+	buf := util.Input()
 
-	contentList, err := db.SelectContent(gId)
+	pId, err := strconv.Atoi(buf)
 	if err != nil {
-		return xerrors.Errorf("select content: %w", err)
+		return fmt.Errorf("project id error: %w", err)
 	}
 
-	for _, elm := range contentList {
-		content := db.ProjectContent{
-			ProjectID: pId,
-			ContentID: elm.ID,
-			Type:      "file",
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+	current := -1
+	for _, p := range projects {
+		if p.ID == pId {
+			current = pId
+			break
 		}
+	}
 
-		_, arerr := content.Save(false)
-		if arerr != nil {
-			return xerrors.Errorf("content save: %w", err)
+	if current == -1 {
+		return fmt.Errorf("not found project id[%d]", pId)
+	}
+
+	groups, err := viewGroups()
+	if err != nil {
+		return xerrors.Errorf("view groups: %w", err)
+	}
+
+	//TODO :現在のGroupを表示
+
+	fmt.Print("Select Group:")
+	buf = util.Input()
+
+	gId, err := strconv.Atoi(buf)
+	if err != nil {
+		return fmt.Errorf("project id error: %w", err)
+	}
+
+	current = -1
+	for _, g := range groups {
+		if g.ID == gId {
+			current = gId
+			break
 		}
+	}
+
+	if current == -1 {
+		return fmt.Errorf("not found group id[%d]", gId)
+	}
+
+	err = addProjectGroup(pId, gId)
+	if err != nil {
+		xerrors.Errorf("add group: %w", err)
 	}
 
 	return nil

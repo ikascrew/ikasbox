@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/ikascrew/ikasbox/config"
@@ -56,26 +57,34 @@ func Transaction(fn func(tx *sql.Tx) error) (err error) {
 
 func CreateTables() error {
 
+	fmt.Println("Create Groups")
 	_, err := db.Exec(CreateGroupsSQL)
 	if err != nil {
 		return xerrors.Errorf("create groups: %w", err)
 	}
+
+	fmt.Println("Create Contents")
 	_, err = db.Exec(CreateContentsSQL)
 	if err != nil {
 		return xerrors.Errorf("create contents: %w", err)
 	}
+
+	fmt.Println("Create ContentThumbnails")
 	_, err = db.Exec(CreateContentThumbnailsSQL)
 	if err != nil {
 		return xerrors.Errorf("create content_thumbnails: %w", err)
 	}
+
+	fmt.Println("Create Projects")
 	_, err = db.Exec(CreateProjectsSQL)
 	if err != nil {
 		return xerrors.Errorf("create projects: %w", err)
 	}
 
-	_, err = db.Exec(CreateProjectContentsSQL)
+	fmt.Println("Create ProjectGroups")
+	_, err = db.Exec(CreateProjectGroupsSQL)
 	if err != nil {
-		return xerrors.Errorf("create project_contents: %w", err)
+		return xerrors.Errorf("create project_groups: %w", err)
 	}
 	return nil
 }

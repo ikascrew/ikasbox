@@ -2,6 +2,8 @@ package db
 
 import (
 	"time"
+
+	"golang.org/x/xerrors"
 )
 
 const CreateProjectsSQL = `
@@ -27,10 +29,15 @@ type Project struct {
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 
+func NewProject() *Project {
+	p := Project{}
+	return &p
+}
+
 func SelectProject() ([]*Project, error) {
 	projects, err := Project{}.All().Query()
 	if err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("project all: %w", err)
 	}
 	return projects, nil
 
