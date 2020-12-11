@@ -7,7 +7,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-const TemplatePath = "templates/"
+const TemplatePath = "assets/templates/"
 
 func Template(w http.ResponseWriter, o interface{}, tmpl ...string) error {
 

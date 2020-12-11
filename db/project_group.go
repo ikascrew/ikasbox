@@ -8,17 +8,18 @@ import (
 
 const CreateProjectGroupsSQL = `
 CREATE TABLE [PROJECT_GROUPS] (
+    [ID] INTEGER PRIMARY KEY AUTOINCREMENT,
     [PROJECT_ID] INTEGER,
     [GROUP_ID] INTEGER,
     [CREATED_AT] DATETIME,
-    [UPDATED_AT] DATETIME,
-  PRIMARY KEY([PROJECT_ID],[GROUP_ID])
+    [UPDATED_AT] DATETIME
 )
 `
 
 //+AR
 type ProjectGroup struct {
-	ID        int       `json:"project_id"`
+	ID        int       `json:"id" db:"pk"`
+	ProjectID int       `json:"project_id"`
 	GroupID   int       `json:"group_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -33,7 +34,7 @@ func SelectProjectContentList(id int) ([]*Content, error) {
 
 	pg := NewProjectGroup()
 
-	groups, err := pg.Where("id", id).Order("create_at", "asc").Query()
+	groups, err := pg.Where("project_id", id).Order("created_at", "asc").Query()
 	if err != nil {
 		return nil, xerrors.Errorf("select project_groups: %w", err)
 	}

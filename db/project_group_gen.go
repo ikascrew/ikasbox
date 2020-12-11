@@ -19,6 +19,7 @@ func (m *ProjectGroup) newRelation() *ProjectGroupRelation {
 	}
 	r.Select(
 		"id",
+		"project_id",
 		"group_id",
 		"created_at",
 		"updated_at",
@@ -163,6 +164,7 @@ type ProjectGroupParams ProjectGroup
 func (m ProjectGroup) Build(p ProjectGroupParams) *ProjectGroup {
 	return &ProjectGroup{
 		ID:        p.ID,
+		ProjectID: p.ProjectID,
 		GroupID:   p.GroupID,
 		CreatedAt: p.CreatedAt,
 		UpdatedAt: p.UpdatedAt,
@@ -193,6 +195,7 @@ func (m *ProjectGroup) Save(validate ...bool) (bool, *ar.Errors) {
 	if m.IsNewRecord() {
 		ins := ar.NewInsert(db, logger).Table("project_groups").Params(map[string]interface{}{
 			"id":         m.ID,
+			"project_id": m.ProjectID,
 			"group_id":   m.GroupID,
 			"created_at": m.CreatedAt,
 			"updated_at": m.UpdatedAt,
@@ -210,6 +213,7 @@ func (m *ProjectGroup) Save(validate ...bool) (bool, *ar.Errors) {
 	} else {
 		upd := ar.NewUpdate(db, logger).Table("project_groups").Params(map[string]interface{}{
 			"id":         m.ID,
+			"project_id": m.ProjectID,
 			"group_id":   m.GroupID,
 			"created_at": m.CreatedAt,
 			"updated_at": m.UpdatedAt,
@@ -228,6 +232,9 @@ func (m *ProjectGroup) Update(p ProjectGroupParams) (bool, *ar.Errors) {
 	if !ar.IsZero(p.ID) {
 		m.ID = p.ID
 	}
+	if !ar.IsZero(p.ProjectID) {
+		m.ProjectID = p.ProjectID
+	}
 	if !ar.IsZero(p.GroupID) {
 		m.GroupID = p.GroupID
 	}
@@ -244,6 +251,9 @@ func (m *ProjectGroup) UpdateColumns(p ProjectGroupParams) (bool, *ar.Errors) {
 
 	if !ar.IsZero(p.ID) {
 		m.ID = p.ID
+	}
+	if !ar.IsZero(p.ProjectID) {
+		m.ProjectID = p.ProjectID
 	}
 	if !ar.IsZero(p.GroupID) {
 		m.GroupID = p.GroupID
@@ -327,6 +337,8 @@ func (m *ProjectGroup) fieldValueByName(name string) interface{} {
 	switch name {
 	case "id", "project_groups.id":
 		return m.ID
+	case "project_id", "project_groups.project_id":
+		return m.ProjectID
 	case "group_id", "project_groups.group_id":
 		return m.GroupID
 	case "created_at", "project_groups.created_at":
@@ -342,6 +354,8 @@ func (m *ProjectGroup) fieldPtrByName(name string) interface{} {
 	switch name {
 	case "id", "project_groups.id":
 		return &m.ID
+	case "project_id", "project_groups.project_id":
+		return &m.ProjectID
 	case "group_id", "project_groups.group_id":
 		return &m.GroupID
 	case "created_at", "project_groups.created_at":
@@ -374,6 +388,7 @@ func (m *ProjectGroup) isColumnName(name string) bool {
 func (m *ProjectGroup) columnNames() []string {
 	return []string{
 		"id",
+		"project_id",
 		"group_id",
 		"created_at",
 		"updated_at",

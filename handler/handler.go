@@ -44,7 +44,7 @@ func register() {
 	//TODO 設定から開く
 	http.HandleFunc("/thumb/", thumbnailHandler)
 
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("public/"))))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("assets/public/"))))
 }
 
 func jsonResponse(w http.ResponseWriter, obj interface{}) error {

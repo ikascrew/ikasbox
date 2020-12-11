@@ -1,14 +1,12 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/ikascrew/ikasbox/db"
 	. "github.com/ikascrew/ikasbox/handler/internal"
-	"golang.org/x/xerrors"
 )
 
 func projectListHandler(w http.ResponseWriter, r *http.Request) {
@@ -53,18 +51,32 @@ func projectContentListHandler(w http.ResponseWriter, r *http.Request) {
 
 	idbuf := pathS[4]
 	id, err := strconv.Atoi(idbuf)
-
-	contentList, err := db.SelectProjectContentList(id)
 	if err != nil {
-		xerrors.Errorf("select project content list : $w")
+		ErrorPage(w, "url error", err, 500)
+		return
+	}
+
+	project := db.Project{}
+	p, err := project.Find(id)
+	if err != nil {
+		ErrorPage(w, "project error", err, 500)
+		return
 	}
 
 	res := ProjectResponse{}
-	//res.Project = project
+	res.Project = p
+
+	contentList, err := db.SelectProjectContentList(id)
+	if err != nil {
+		ErrorPage(w, "select project content list error", err, 500)
+		return
+	}
+
 	res.Contents = contentList
 
 	err = jsonResponse(w, res)
 	if err != nil {
-		log.Println(err)
+		ErrorPage(w, "json response error", err, 500)
+		return
 	}
 }

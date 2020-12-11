@@ -1,0 +1,98 @@
+{{define "title"}} Project {{end}}
+{{define "content"}}
+
+<div class="mdl-grid">
+  <div class="mdl-cell mdl-cell--3-col">
+
+<table class="mdl-data-table">
+  <thead>
+    <tr>
+      <th class="mdl-data-table__cell--non-numeric">Name</th>
+      <th class="mdl-data-table__cell--non-numeric">Width</th>
+      <th class="mdl-data-table__cell--non-numeric">Height</th>
+    </tr>
+  </thead>
+  <tbody>
+
+{{ range .ProjectList }}
+    <tr>
+      <td class="mdl-data-table__cell--non-numeric"><a href="/project/{{.ID}}">{{.Name}}</a></td>
+      <td class="mdl-data-table__cell--non-numeric">{{.Width}}</td>
+      <td class="mdl-data-table__cell--non-numeric">{{.Height}}</td>
+    </tr>
+{{end}}
+
+  </tbody>
+</table>
+  </div>
+
+  <dialog class="mdl-dialog" id="projectDialog">
+    <h4 class="mdl-dialog__title">Create Project</h4>
+    <div class="mdl-dialog__content">
+      <p>
+      <form action="#">
+        <div class="mdl-textfield mdl-js-textfield">
+          <input class="mdl-textfield__input" type="text" id="project_name">
+          <label class="mdl-textfield__label" for="project_name">Project Name...</label>
+        </div>
+      </form>
+      </p>
+      <div id="group_spinner" width="100%" class="mdl-spinner mdl-js-spinner"></div>
+    </div>
+
+    <div class="mdl-dialog__actions">
+      <button type="button" class="mdl-button" id="projectAgree">Agree</button>
+      <button type="button" class="mdl-button close">Disagree</button>
+    </div>
+
+  </dialog>
+
+<a id="projectAdd" class="mdl-button mdl-js-ripple-effect mdl-js-button new-content" ><i class="material-icons">add_circle_outline</i></a>
+
+  </div>
+</div>
+
+
+<script>
+
+var projectDialog = document.querySelector('#projectDialog');
+var addButton = document.querySelector('#projectAdd');
+var agree = document.querySelector('#projectAgree');
+
+if (! projectDialog.showModal) {
+    dialogPolyfill.registerDialog(projectDialog);
+}
+
+addButton.addEventListener('click', function(e) {
+    projectDialog.showModal();
+},false);
+
+agree.addEventListener('click', function(e) {
+
+    xmlhttp.open("POST", "/project/add", true);
+
+    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xmlhttp.setRequestHeader("Cache-Control", "no-cache"); // For no cache
+    var projectName = document.querySelector('#project_name').value;
+    var data = {
+        name : projectName,
+        group : {{ .MenuGroup.Selection.ID }}
+    };
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 ) {
+            if ( xmlhttp.status != 200) {
+              alert(xmlhttp.status + " : " + xmlhttp.responseText);
+            } else {
+              dialog.close();
+            }
+        }
+    }
+
+    xmlhttp.send(EncodeHTMLForm(data));
+
+});
+
+</script>
+
+
+{{ end }}

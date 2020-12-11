@@ -106,18 +106,16 @@ func registerProject(name string) error {
 
 func addProjectGroup(pId, gId int) error {
 
-	var err error
-
 	pg := db.NewProjectGroup()
 
-	pg.ID = pId
+	pg.ProjectID = pId
 	pg.GroupID = gId
 	pg.CreatedAt = time.Now()
 	pg.UpdatedAt = time.Now()
 
-	_, arerr := pg.Save(false)
+	_, arerr := pg.Save()
 	if arerr != nil {
-		return xerrors.Errorf("content save: %w", err)
+		return xerrors.Errorf("content save: %w", arerr)
 	}
 
 	return nil
@@ -174,7 +172,7 @@ func inputProject(projects []*db.Project) error {
 
 	err = addProjectGroup(pId, gId)
 	if err != nil {
-		xerrors.Errorf("add group: %w", err)
+		return xerrors.Errorf("add group: %w", err)
 	}
 
 	return nil

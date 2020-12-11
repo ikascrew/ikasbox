@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/ikascrew/core/util"
@@ -122,13 +123,28 @@ func importContent(p string) error {
 
 	bar := pb.StartNew(len(files)).Prefix("Register Content")
 
+	wg := &sync.WaitGroup{}
+	sem := make(chan struct{}, 10)
+	defer close(sem)
+
 	for _, elm := range files {
-		err := registerFile(id, elm)
-		if err != nil {
-			return xerrors.Errorf("Error Register[%s]: %w", elm, err)
-		}
-		bar.Increment()
+		sem <- struct{}{}
+		wg.Add(1)
+		go func(name string) {
+			defer func() {
+				wg.Done()
+				<-sem
+				bar.Increment()
+			}()
+
+			err := registerFile(id, name)
+			if err != nil {
+				log.Println(err)
+			}
+		}(elm)
 	}
+
+	wg.Wait()
 
 	bar.FinishPrint("Register Content Completion")
 	return nil
@@ -141,6 +157,7 @@ func registerFile(id int, f string) error {
 	if err != nil {
 		return xerrors.Errorf("load video[%s]: %w", f, err)
 	}
+	defer v.Close()
 
 	typ := "file"
 	if isImage(f) {
@@ -188,33 +205,30 @@ func registerFile(id int, f string) error {
 		}
 
 		for idx, img := range images {
-			if !img.Empty() {
 
-				thumb := db.ContentThumbnail{}
+			thumb := db.ContentThumbnail{}
 
-				thumb.ID = c.ID
-				thumb.Seq = idx
-				goimg, err := img.ToImage()
-				if err != nil {
-					return xerrors.Errorf("mat to image: %w", err)
-				}
+			thumb.ID = c.ID
+			thumb.Seq = idx
+			goimg, err := img.ToImage()
+			if err != nil {
+				return xerrors.Errorf("mat to image: %w", err)
+			}
 
-				buf := new(bytes.Buffer)
-				err = jpeg.Encode(buf, goimg, nil)
-				if err != nil {
-					return xerrors.Errorf("convert image: %w", err)
-				}
+			buf := new(bytes.Buffer)
+			err = jpeg.Encode(buf, goimg, nil)
+			if err != nil {
+				return xerrors.Errorf("convert image: %w", err)
+			}
 
-				thumb.Data = buf.Bytes()
+			thumb.Data = buf.Bytes()
+			err = thumb.Insert()
+			if err != nil {
+				return xerrors.Errorf("thumbnail insert: %w", err)
+			}
 
-				err = thumb.Insert()
-				if err != nil {
-					return xerrors.Errorf("thumbnail insert: %w", err)
-				}
-
-				if !isImage(f) {
-					img.Close()
-				}
+			if !isImage(f) {
+				img.Close()
 			}
 		}
 
