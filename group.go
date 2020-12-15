@@ -16,7 +16,7 @@ import (
 	"github.com/ikascrew/core/util"
 	"github.com/ikascrew/ikasbox/config"
 	"github.com/ikascrew/ikasbox/db"
-	own "github.com/ikascrew/ikasbox/util"
+
 	"gocv.io/x/gocv"
 	"golang.org/x/xerrors"
 	"gopkg.in/cheggaaa/pb.v1"
@@ -93,19 +93,19 @@ func importContent(p string) error {
 	}
 
 	//ファイルの検索
-	files, err := own.SearchDirectory(p, conf.Extensions)
+	files, err := util.SearchDirectory(p, conf.Extensions)
 	if err != nil {
 		return xerrors.Errorf("search directory: %w", err)
 	}
 
 	//ファイルのソート
-	own.SortFiles(files)
+	util.SortFiles(files)
 	if len(files) <= 0 {
 		return fmt.Errorf("file not found[%s]", p)
 	}
 	fmt.Printf("[%s] target files[%d]. Register?[Y/n]:", p, len(files))
 
-	in := own.Input()
+	in := util.Input()
 	if in != "Y" {
 		return nil
 	}
@@ -267,7 +267,7 @@ func ChooseGroup() (int, error) {
 	}
 
 	fmt.Printf("Select GroupID :")
-	in := own.Input()
+	in := util.Input()
 
 	id, err := strconv.Atoi(in)
 	if err != nil {
@@ -304,7 +304,7 @@ func check() error {
 		log.Printf("nothing %d/all %d Delete?[Y/n]:", len(nothings), len(contents))
 
 		//delete?
-		if ans := own.Input(); ans == "Y" {
+		if ans := util.Input(); ans == "Y" {
 			return fmt.Errorf("not implemented")
 		}
 
