@@ -20,7 +20,7 @@ func Listen() error {
 	c := config.Get()
 
 	serve := fmt.Sprintf("%s:%d", c.Host, c.Port)
-	log.Println("ikasbox start[" + serve + "]")
+	fmt.Println("ikasbox start[" + serve + "]")
 
 	return http.ListenAndServe(serve, nil)
 }

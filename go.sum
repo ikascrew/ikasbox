@@ -19,6 +19,8 @@ github.com/ikascrew/core v0.0.0-20200716051841-89c40efe56d9 h1:P2EX4sTgFD4MLEZ9Z
 github.com/ikascrew/core v0.0.0-20200716051841-89c40efe56d9/go.mod h1:3Dr01/iht9L+8kqG6lj5vi7hvcJvr6RtKQimyvPAP6c=
 github.com/ikascrew/core v0.0.0-20200716052809-d71df6c3b3f2 h1:QLmO2Kn/GARE+E5NEnNXrN6QpYGeoxI+LEPn1yN61JI=
 github.com/ikascrew/core v0.0.0-20200716052809-d71df6c3b3f2/go.mod h1:3Dr01/iht9L+8kqG6lj5vi7hvcJvr6RtKQimyvPAP6c=
+github.com/ikascrew/core v0.0.0-20201215235215-81c10007e5b7 h1:gCFLwyul766wkS7y4JSRhDMf+kUla7jmd+sh50FUu68=
+github.com/ikascrew/core v0.0.0-20201215235215-81c10007e5b7/go.mod h1:3Dr01/iht9L+8kqG6lj5vi7hvcJvr6RtKQimyvPAP6c=
 github.com/ikascrew/go-opencv v0.0.0-20171108105817-beed5ac470ba/go.mod h1:cF4n6oYOEmUbHpACHZ13LkVCyOE30xU48yf80hHmsYc=
 github.com/ikascrew/ikasbox v0.0.0-20200712003025-49f1509df2bf/go.mod h1:FZ0hezJwW2c5xioz9n1h8DlB9RKG2G09THWtOK1gYcs=
 github.com/ikascrew/ikascrew v0.0.0-20170821023227-0c3f5d5cfc00/go.mod h1:0GztyaHDEiKNdYYLzZV4wbBZvwSo3yNWi5pwLISFkWM=

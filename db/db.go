@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log"
 
 	"github.com/ikascrew/ikasbox/config"
 	"golang.org/x/xerrors"
@@ -16,7 +15,7 @@ func Open() error {
 	c := config.Get()
 	dbfile := c.DatabasePath
 
-	log.Println("open database:" + dbfile)
+	fmt.Println("open database:" + dbfile)
 
 	db, err := sql.Open("sqlite3", dbfile)
 	if err != nil {

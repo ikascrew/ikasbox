@@ -1,10 +1,10 @@
 module github.com/ikascrew/ikasbox
 
-go 1.12
+go 1.16
 
 require (
 	github.com/fatih/color v1.9.0 // indirect
-	github.com/ikascrew/core v0.0.0-20200716052809-d71df6c3b3f2
+	github.com/ikascrew/core v0.0.0-20201215235215-81c10007e5b7
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/monochromegane/argen v0.0.0-20150711140148-c37112f9dc50

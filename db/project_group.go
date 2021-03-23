@@ -42,12 +42,10 @@ func SelectProjectContentList(id int) ([]*Content, error) {
 	contentList := make([]*Content, 0, 1000)
 
 	for _, elm := range groups {
-
 		list, err := SelectContent(elm.GroupID)
 		if err != nil {
 			return nil, xerrors.Errorf("select contents: %w", err)
 		}
-
 		contentList = append(contentList, list...)
 	}
 
