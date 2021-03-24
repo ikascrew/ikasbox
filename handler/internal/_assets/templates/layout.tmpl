@@ -35,21 +35,21 @@
     <!-- Tile icon for Win8 (144x144 + tile color) -->
     <meta name="msapplication-TileColor" content="#3372DF">
 
-    <link rel="shortcut icon" href="/static/images/favicon.png">
+    <link rel="shortcut icon" href="/images/favicon.png">
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.cyan-light_blue.min.css">
-    <link rel="stylesheet" href="/static/css/ikasbox.css">
+    <link rel="stylesheet" href="/css/ikasbox.css">
     </style>
 
   </head>
 
   <body>
 
-    <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
+    <div class="ikasbox-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
 
-      <header class="demo-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
+      <header class="ikasbox-header mdl-layout__header mdl-color--grey-100 mdl-color-text--grey-600">
         <div class="mdl-layout__header-row">
           <span class="mdl-layout-title"></span>
           <div class="mdl-layout-spacer">
@@ -60,10 +60,10 @@
         </div>
       </header>
 
-      <div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
+      <div class="ikasbox-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
 
-        <header class="demo-drawer-header">
-          <div class="demo-avatar-dropdown">
+        <header class="ikasbox-drawer-header">
+          <div class="ikasbox-avatar-dropdown">
             <span>{{ .MenuGroup.Selection.Name }}</span>
             <div class="mdl-layout-spacer"></div>
             <button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
@@ -80,7 +80,7 @@
           </div>
         </header>
 
-        <nav class="demo-navigation mdl-navigation mdl-color--blue-grey-800">
+        <nav class="ikasbox-navigation mdl-navigation mdl-color--blue-grey-800">
           <a class="mdl-navigation__link" href="/"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>Home</a>
           <a class="mdl-navigation__link" href="/content/"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation" >photo</i>Content</a>
           <a class="mdl-navigation__link" href="/annotation/"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">announcement</i>Annotation</a>
@@ -119,7 +119,7 @@
   </dialog>
 
     <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-    <script src="/static/js/ikasbox.js"></script>
+    <script src="/js/ikasbox.js"></script>
   </body>
 </html>
 {{ end }}

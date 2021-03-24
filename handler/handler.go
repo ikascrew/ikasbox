@@ -15,7 +15,12 @@ import (
 
 func Listen() error {
 
-	register()
+	err := RegisterStatic()
+
+	err = register()
+	if err != nil {
+		return fmt.Errorf("error: %w", err)
+	}
 
 	c := config.Get()
 
@@ -25,7 +30,7 @@ func Listen() error {
 	return http.ListenAndServe(serve, nil)
 }
 
-func register() {
+func register() error {
 
 	http.HandleFunc("/", topHandler)
 	http.HandleFunc("/content/", contentHandler)
@@ -44,7 +49,7 @@ func register() {
 	//TODO 設定から開く
 	http.HandleFunc("/thumb/", thumbnailHandler)
 
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("assets/public/"))))
+	return nil
 }
 
 func jsonResponse(w http.ResponseWriter, obj interface{}) error {
