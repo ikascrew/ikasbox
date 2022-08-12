@@ -1,6 +1,7 @@
 package ikasbox
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -16,7 +17,7 @@ func Start(opts ...config.Option) error {
 
 	err := config.Set(opts...)
 	if err != nil {
-		return xerrors.Errorf("config setting : %w", err)
+		return xerrors.Errorf("config setting error: %w", err)
 	}
 
 	conf := config.Get()
@@ -30,6 +31,8 @@ func Start(opts ...config.Option) error {
 		err = setProject()
 	case "init":
 		err = create()
+	default:
+		err = fmt.Errorf("subcommand not found[%s].sub command is [start group project init]", conf.SubCommand)
 	}
 
 	if err != nil {

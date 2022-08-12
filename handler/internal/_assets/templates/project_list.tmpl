@@ -57,7 +57,8 @@
 
 var projectDialog = document.querySelector('#projectDialog');
 var addButton = document.querySelector('#projectAdd');
-var agree = document.querySelector('#projectAgree');
+var close = projectDialog.querySelector('button.close');
+var agree = projectDialog.querySelector('#projectAgree');
 
 if (! projectDialog.showModal) {
     dialogPolyfill.registerDialog(projectDialog);
@@ -74,22 +75,28 @@ agree.addEventListener('click', function(e) {
     xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xmlhttp.setRequestHeader("Cache-Control", "no-cache"); // For no cache
     var projectName = document.querySelector('#project_name').value;
+
     var data = {
         name : projectName,
-        group : {{ .MenuGroup.Selection.ID }}
     };
+
     xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState == 4 ) {
             if ( xmlhttp.status != 200) {
               alert(xmlhttp.status + " : " + xmlhttp.responseText);
             } else {
-              dialog.close();
+              projectDialog.close();
+              location.href="/project/";
             }
         }
     }
 
     xmlhttp.send(EncodeHTMLForm(data));
 
+});
+
+close.addEventListener('click', function(e) {
+    projectDialog.close();
 });
 
 </script>

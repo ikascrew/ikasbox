@@ -34,10 +34,18 @@ func NewProject() *Project {
 	return &p
 }
 
-func SelectProject() ([]*Project, error) {
+func SelectProject(id int) (*Project, error) {
+	project, err := Project{}.Find(id)
+	if err != nil {
+		return nil, xerrors.Errorf("project Find() error: %w", err)
+	}
+	return project, nil
+}
+
+func SelectProjectList() ([]*Project, error) {
 	projects, err := Project{}.All().Query()
 	if err != nil {
-		return nil, xerrors.Errorf("project all: %w", err)
+		return nil, xerrors.Errorf("project All() error: %w", err)
 	}
 	return projects, nil
 

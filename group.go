@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
+	//"sync"
 	"time"
 
 	"github.com/ikascrew/core/util"
@@ -123,28 +123,28 @@ func importContent(p string) error {
 
 	bar := pb.StartNew(len(files)).Prefix("Register Content")
 
-	wg := &sync.WaitGroup{}
-	sem := make(chan struct{}, 10)
-	defer close(sem)
+	//wg := &sync.WaitGroup{}
+	//sem := make(chan struct{}, 10)
+	//defer close(sem)
 
 	for _, elm := range files {
-		sem <- struct{}{}
-		wg.Add(1)
-		go func(name string) {
-			defer func() {
-				wg.Done()
-				<-sem
-				bar.Increment()
-			}()
+		//sem <- struct{}{}
+		//wg.Add(1)
+		//go func(name string) {
+		//defer func() {
+		//wg.Done()
+		//<-sem
+		//}()
 
-			err := registerFile(id, name)
-			if err != nil {
-				log.Println(err)
-			}
-		}(elm)
+		err := registerFile(id, elm)
+		if err != nil {
+			log.Println(err)
+		}
+		bar.Increment()
+		//}(elm)
 	}
 
-	wg.Wait()
+	//wg.Wait()
 
 	bar.FinishPrint("Register Content Completion")
 	return nil

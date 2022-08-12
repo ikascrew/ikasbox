@@ -12,6 +12,7 @@ func groupHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func groupAddHandler(w http.ResponseWriter, r *http.Request) {
+
 	r.ParseForm()
 	name := r.FormValue("name")
 	group := db.Group{
@@ -19,6 +20,7 @@ func groupAddHandler(w http.ResponseWriter, r *http.Request) {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
+
 	_, err := group.Save(false)
 	if err != nil {
 		panic(err)

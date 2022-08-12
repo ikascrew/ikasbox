@@ -47,7 +47,7 @@ func setProject() error {
 
 func viewProjects() ([]*db.Project, error) {
 
-	projects, err := db.SelectProject()
+	projects, err := db.SelectProjectList()
 	if err != nil {
 		return nil, xerrors.Errorf("select project: %w", err)
 	}
@@ -104,23 +104,6 @@ func registerProject(name string) error {
 	return nil
 }
 
-func addProjectGroup(pId, gId int) error {
-
-	pg := db.NewProjectGroup()
-
-	pg.ProjectID = pId
-	pg.GroupID = gId
-	pg.CreatedAt = time.Now()
-	pg.UpdatedAt = time.Now()
-
-	_, arerr := pg.Save()
-	if arerr != nil {
-		return xerrors.Errorf("content save: %w", arerr)
-	}
-
-	return nil
-}
-
 func inputProject(projects []*db.Project) error {
 
 	fmt.Print("Select Project ID:")
@@ -170,7 +153,7 @@ func inputProject(projects []*db.Project) error {
 		return fmt.Errorf("not found group id[%d]", gId)
 	}
 
-	err = addProjectGroup(pId, gId)
+	err = db.AddProjectGroup(pId, gId)
 	if err != nil {
 		return xerrors.Errorf("add group: %w", err)
 	}
