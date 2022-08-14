@@ -35,10 +35,13 @@ func Argument(args []string) Option {
 		}
 
 		conf.SubCommand = args[0]
+		if !checkSubCommand(conf.SubCommand) {
+			return fmt.Errorf("ikasbox sub command not found[%s]", conf.SubCommand)
+		}
 
 		if conf.SubCommand != "start" && conf.SubCommand != "init" {
 			if len(args) < 2 {
-				return fmt.Errorf("ikasbox [%s] command argument required.")
+				return fmt.Errorf("ikasbox [%s] command argument required.", conf.SubCommand)
 			}
 			conf.Function = args[1]
 			if len(args) > 2 {
@@ -54,4 +57,12 @@ func Extension(exts string) Option {
 		conf.Extensions = strings.Split(exts, ",")
 		return nil
 	}
+}
+
+func checkSubCommand(sub string) bool {
+	if sub == "start" || sub == "project" ||
+		sub == "group" || sub == "init" {
+		return true
+	}
+	return false
 }

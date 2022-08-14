@@ -1,0 +1,95 @@
+{{define "title"}} Project {{end}}
+
+{{define "content"}}
+
+<div class="mdl-grid">
+
+  <div class="mdl-cell mdl-cell--3-col">
+
+<form action="#">
+
+  <div class="mdl-textfield">
+    <label> {{ .Project.ID }}</label>
+  </div>
+
+  <div class="mdl-textfield mdl-js-textfield">
+      <input class="mdl-textfield__input" type="text" id="name" value="{{ .Project.Name }}">
+    <label class="mdl-textfield__label" for="name">Name...</label>
+  </div>
+
+  <div class="mdl-textfield">
+    <label> {{ .Project.Width }}</label>
+  </div>
+
+  <div class="mdl-textfield">
+    <label> {{ .Project.Height }}</label>
+  </div>
+
+</form>
+
+<a id="projectGroupAdd" class="mdl-button mdl-js-ripple-effect mdl-js-button" ><i class="material-icons">add_circle_outline</i></a>
+
+<table class="mdl-data-table">
+  <tbody>
+{{ range .GroupList }}
+    <tr>
+        <td>{{ .ID }}</td>
+        <td>{{ .Name }}</td>
+    </tr>
+{{ end }}
+  </tbody>
+</table>
+
+  </div>
+</div>
+
+  <dialog class="mdl-dialog" id="projectGroupDialog">
+    <h4 class="mdl-dialog__title">Add Group</h4>
+    <div class="mdl-dialog__content">
+
+<table class="mdl-data-table">
+  <tbody>
+{{ range .MenuGroup.List}}
+    <tr>
+        <td>{{ .ID }}</td>
+        <td>{{ .Name }}</td>
+        <td>
+            <a class="mdl-button mdl-js-ripple-effect mdl-js-button" href="/project/{{ $.Project.ID }}/group/{{ .ID }}"><i class="material-icons">add_circle_outline</i></a>
+        </td>
+    </tr>
+{{ end }}
+  </tbody>
+</table>
+
+    </div>
+    <div class="mdl-dialog__actions">
+      <button type="button" class="mdl-button close">Disagree</button>
+    </div>
+
+  </dialog>
+
+<script>
+
+var groupDialog = document.querySelector('#projectGroupDialog');
+var addButton = document.querySelector('#projectGroupAdd');
+
+var agree = groupDialog.querySelector('button.agree');
+
+var close = groupDialog.querySelector('button.close');
+
+if (! projectGroupDialog.showModal) {
+    dialogPolyfill.registerDialog(groupDialog);
+}
+
+addButton.addEventListener('click', function(e) {
+    groupDialog.showModal();
+},false);
+
+close.addEventListener('click', function(e) {
+    groupDialog.close();
+});
+
+</script>
+
+
+{{ end }}
