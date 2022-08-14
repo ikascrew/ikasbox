@@ -13,11 +13,35 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Grid from '@mui/material/Grid';
 
-import "./css/Layout.css"
+import Pages from "./Pages.js";
+
+import "./css/Layout.css";
 
 class Layout extends React.Component {
+
+  constructor(props) {
+    super(props);
+  }
+
+  handleListItemClick(e,name) {
+    location.href="/" + name;
+  }
+
+  getLocation() {
+    var url = location.href;
+    if ( url.indexOf("/groups") !== -1 ) {
+      return "groups";
+    } else if ( url.indexOf("/projects") !== -1 ) {
+      return "projects";
+    }
+
+    return "index";
+  }
+
   render() {
-    var selectedIndex = 0;
+
+    var selected = this.getLocation();
+
     return (
       <>
       <AppBar position="static">
@@ -32,7 +56,7 @@ class Layout extends React.Component {
           />
 
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            ikasbox
+            <a href="/">ikasbox</a>
           </Typography>
 
         </Toolbar>
@@ -42,29 +66,50 @@ class Layout extends React.Component {
 
         <Grid item xs={3} className="ListGrid">
           <List component="nav" aria-label="main mailbox folders">
+
+
             <ListItemButton
-              selected={selectedIndex === 0}
-              onClick={(event) => handleListItemClick(event, 0)}
+              selected={selected === "category"}
+              onClick={(event) => this.handleListItemClick(event, "category")}
+            >
+              <ListItemIcon>
+              </ListItemIcon>
+              <ListItemText primary="Category" />
+            </ListItemButton>
+
+            <ListItemButton
+              selected={selected === "tags"}
+              onClick={(event) => this.handleListItemClick(event, "tags")}
+            >
+              <ListItemIcon>
+              </ListItemIcon>
+              <ListItemText primary="Tag" />
+            </ListItemButton>
+  
+            <ListItemButton
+              selected={selected === "groups"}
+              onClick={(event) => this.handleListItemClick(event, "groups")}
             >
               <ListItemIcon>
               </ListItemIcon>
               <ListItemText primary="Group" />
             </ListItemButton>
-  
+
             <ListItemButton
-              selected={selectedIndex === 1}
-              onClick={(event) => handleListItemClick(event, 1)}
+              selected={selected === "projects"}
+              onClick={(event) => this.handleListItemClick(event, "projects")}
             >
               <ListItemIcon>
               </ListItemIcon>
               <ListItemText primary="Project" />
             </ListItemButton>
+
           </List> 
         </Grid>
 
         <Grid item xs={9} className="ContentGrid"> 
 
-Router
+          <Pages />
 
         </Grid>
       </Grid>

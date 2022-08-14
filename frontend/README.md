@@ -92,6 +92,7 @@ const container = document.getElementById('app');
 const root = createRoot(container);
 root.render(<App />);
 ```
+
 # client server
 
 ```
@@ -100,7 +101,15 @@ $ npm start
 
 http://localhost:3000/
 
+## SPA
 
+devServer section
+
+```
+  historyApiFallback: {
+     index: 'index.html'
+  }
+```
 
 # Design
 
@@ -111,7 +120,7 @@ $ npm install --save-dev css-loader
 $ npm install --save-dev style-loader
 ```
 
-added swebpack.config.js(module.exports.module.rules)
+added webpack.config.js(module.exports.module.rules)
 
 ```
 {
@@ -134,6 +143,21 @@ $ npm install @mui/material @emotion/react @emotion/styled
 />
 ```
 
+# Router
 
+```
+$ npm install react-router-dom
+```
+
+# API Access
+
+```
+$ npm install --save axios
+```
+
+# Session(Cookie)
+
+
+# Test
 
 

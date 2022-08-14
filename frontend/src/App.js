@@ -1,5 +1,6 @@
 import React from "react";
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from "react-router-dom";
 
 import Layout from "./Layout.js"
 import "./css/App.css"
@@ -7,7 +8,9 @@ import "./css/App.css"
 class App extends React.Component {
   render() {
     return (<>
-      <Layout/>
+      <BrowserRouter>
+        <Layout/>
+      </BrowserRouter>
     </>);
   }
 }

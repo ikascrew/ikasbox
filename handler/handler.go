@@ -10,6 +10,7 @@ import (
 
 	"github.com/ikascrew/ikasbox/config"
 	"github.com/ikascrew/ikasbox/db"
+	"github.com/ikascrew/ikasbox/handler/api"
 	. "github.com/ikascrew/ikasbox/handler/internal"
 )
 
@@ -26,6 +27,11 @@ func Listen() error {
 
 	serve := fmt.Sprintf("%s:%d", c.Host, c.Port)
 	fmt.Println("ikasbox start[" + serve + "]")
+
+	err = api.Register("/api/")
+	if err != nil {
+		return fmt.Errorf("error: %w", err)
+	}
 
 	return http.ListenAndServe(serve, nil)
 }

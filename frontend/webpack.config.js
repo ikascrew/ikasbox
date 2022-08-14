@@ -30,6 +30,12 @@ module.exports = {
     static: {
       directory: path.resolve(__dirname,"public")
     },
+    historyApiFallback: {
+      index: 'index.html'
+    },
+    proxy: {
+        "/api":"http://localhost:5555"
+    },
     port:3000
   },
   plugins: debug ? [] : [
