@@ -30,7 +30,23 @@ func NewGroup() *Group {
 }
 
 func SelectGroup() ([]*Group, error) {
+
 	groups, err := Group{}.Order("id", "asc").All().Query()
+	if err != nil {
+		return nil, xerrors.Errorf("select group: %w", err)
+	}
+	return groups, nil
+}
+
+func SelectPagingGroup(pg *Paging) ([]*Group, error) {
+
+	var grp Group
+	cnt := grp.Count()
+	pg.SetCount(cnt)
+
+	offset := (pg.Current - 1) * pg.Limit
+
+	groups, err := Group{}.Order("updated_at", "desc").Limit(pg.Limit).Offset(offset).Query()
 	if err != nil {
 		return nil, xerrors.Errorf("select group: %w", err)
 	}
@@ -43,4 +59,21 @@ func FindGroup(id int) (*Group, error) {
 		return nil, xerrors.Errorf("find group: %w", err)
 	}
 	return g, nil
+}
+
+func RegisterGroup(name string, path string) error {
+
+	now := time.Now()
+	g := Group{
+		Name:      name,
+		Path:      path,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+	_, err := g.Save(false)
+	if err != nil {
+		return xerrors.Errorf("Group Save() error: %w", err)
+	}
+
+	return nil
 }

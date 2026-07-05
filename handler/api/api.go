@@ -19,6 +19,17 @@ var apiMap map[string]NewParameterFunc
 func init() {
 	apiMap = make(map[string]NewParameterFunc)
 	apiMap["v1/groups/view"] = newGroupView
+	apiMap["v1/groups/register"] = newGroupRegister
+	apiMap["v1/groups/import"] = newGroupImport
+	apiMap["v1/groups/contents"] = newContentView
+
+	apiMap["v1/contents/view"] = newContentFind
+
+	apiMap["v1/projects/view"] = newProjectView
+	apiMap["v1/projects/group"] = newProjectGroupView
+	apiMap["v1/projects/group/add"] = newProjectGroupAdd
+	apiMap["v1/projects/contents"] = newProjectContentView
+	apiMap["v1/projects/register"] = newProjectRegister
 }
 
 type Handle struct {
@@ -65,7 +76,6 @@ func (h *Handle) createParameter(r *http.Request) (Parameter, error) {
 func (h *Handle) create(url string) (Parameter, error) {
 
 	np := strings.Replace(url, h.root, "", 1)
-
 	p, ok := apiMap[np]
 	if !ok {
 		return nil, xerrors.Errorf("not found api[%s]", url)
@@ -87,7 +97,11 @@ func (h *Handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// schema
-	res := p.Processing()
+	res, err := p.Processing()
+	if err != nil {
+		writeErrorJSON(w, err)
+		return
+	}
 
 	write(w, res)
 }
@@ -124,7 +138,7 @@ func writeJSON(w http.ResponseWriter, x interface{}) {
 }
 
 type Parameter interface {
-	Processing() Return
+	Processing() (Return, error)
 }
 
 type Return interface {
@@ -146,9 +160,11 @@ func writeErrorJSON(w http.ResponseWriter, err error) {
 }
 
 func dump(r *http.Request) {
+
 	if true {
 		return
 	}
+
 	dump, _ := httputil.DumpRequest(r, true)
 	line := "-------------------------------------------------------"
 	log.Printf("%s\n%s\n", line, string(dump))

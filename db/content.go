@@ -53,10 +53,18 @@ func SelectContent(gId int) ([]*Content, error) {
 	}
 }
 
-func SelectContentPager(gId int, page int) ([]*Content, error) {
+func SelectPagingContent(gId int, pg *Paging) ([]*Content, error) {
+
+	var dao Content
+
 	if gId == -1 {
-		return Content{}.Order("id", "asc").Limit(ContentPageNum).Offset((page - 1) * ContentPageNum).Query()
-	} else {
-		return Content{}.Order("id", "asc").And("group_id", gId).Limit(ContentPageNum).Offset((page - 1) * ContentPageNum).Query()
+		cnt := dao.All().Count()
+		pg.SetCount(cnt)
+		return dao.Order("id", "asc").Limit(pg.Limit).Offset((pg.Current - 1) * pg.Limit).Query()
 	}
+
+	cnt := dao.Where("group_id", gId).Count()
+	pg.SetCount(cnt)
+
+	return dao.Where("group_id", gId).Order("id", "asc").Limit(pg.Limit).Offset((pg.Current - 1) * pg.Limit).Query()
 }

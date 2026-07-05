@@ -5,8 +5,7 @@ class Paging {
     return {
       current:1,
       count:0,
-      limit:10,
-      maxPage:0
+      limit:10
     }
   }
 }

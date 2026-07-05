@@ -13,14 +13,21 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Grid from '@mui/material/Grid';
 
-import Pages from "./Pages.js";
+import Pages from "./Pages.jsx";
 
-import "./css/Layout.css";
+import "../css/Layout.css";
+import Dialog from "./LayoutDialog.jsx";
+
+var inst;
 
 class Layout extends React.Component {
 
   constructor(props) {
     super(props);
+    inst = this;
+
+    this.globalDialog = React.createRef();
+    this.showDialog = this.showDialog.bind(this);
   }
 
   handleListItemClick(e,name) {
@@ -33,9 +40,14 @@ class Layout extends React.Component {
       return "groups";
     } else if ( url.indexOf("/projects") !== -1 ) {
       return "projects";
+    } else if ( url.indexOf("/contents") !== -1 ) {
+      return "contents";
     }
-
     return "index";
+  }
+
+  showDialog(title,msg,type) {
+    return this.globalDialog.current.show(title,msg,type);
   }
 
   render() {
@@ -44,7 +56,7 @@ class Layout extends React.Component {
 
     return (
       <>
-      <AppBar position="static">
+      <AppBar position="static" className="menuMar">
         <Toolbar>
 
           <IconButton
@@ -56,11 +68,13 @@ class Layout extends React.Component {
           />
 
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <a href="/">ikasbox</a>
+            <a href="/" className="rootMenu">ikasbox</a>
           </Typography>
 
         </Toolbar>
       </AppBar>
+
+      <Dialog ref={this.globalDialog} />
 
       <Grid container spacing={1} className="MainGrid">
 
@@ -85,6 +99,16 @@ class Layout extends React.Component {
               </ListItemIcon>
               <ListItemText primary="Tag" />
             </ListItemButton>
+
+            <ListItemButton
+              selected={selected === "contents"}
+              onClick={(event) => this.handleListItemClick(event, "contents")}
+            >
+              <ListItemIcon>
+              </ListItemIcon>
+              <ListItemText primary="Contents" />
+            </ListItemButton>
+
   
             <ListItemButton
               selected={selected === "groups"}
@@ -108,13 +132,20 @@ class Layout extends React.Component {
         </Grid>
 
         <Grid item xs={9} className="ContentGrid"> 
-
           <Pages />
-
         </Grid>
+
       </Grid>
     </>);
   }
+}
+
+export function Alert(title,msg) {
+  return inst.showDialog(title,msg,"alert");
+}
+
+export function Confirm(title,msg) {
+  return inst.showDialog(title,msg,"confirm");
 }
 
 export default Layout;
