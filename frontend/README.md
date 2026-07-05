@@ -22,7 +22,7 @@ $ npm run dev
 
 http://localhost:3000/
 
-`vite.config.js` proxies `/api` and `/thumb` to `http://localhost:5555` (the Go server) and listens on port 3000.
+`vite.config.js` proxies `/api`, `/thumb`, and `/content/media` to `http://localhost:5555` (the Go server) and listens on port 3000. Only the `/content/media` prefix is proxied, not the bare `/content` — that would also swallow the frontend's own `/contents` SPA route.
 
 # build
 
@@ -70,6 +70,5 @@ not implemented.
 
 # issue
 
-- コンテンツ一覧
-- プロジェクト作成
-- プロジェクトグループ追加
+- グループ／プロジェクトの削除、プロジェクト名の変更（未実装）
+- ディレクトリインポートの進捗表示（現状は非同期で投げっぱなし）
