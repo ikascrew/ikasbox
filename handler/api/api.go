@@ -50,32 +50,24 @@ func Register(path string) error {
 	return nil
 }
 
-func (h *Handle) createParameter(r *http.Request) (Parameter, error) {
+//Bodyからデータを抜き出す
+func (h *Handle) bind(r *http.Request, p Parameter) error {
 
-	url := r.URL
-
-	//リクエストからパラメータ引数を指定
-	p, err := h.create(url.Path)
-	if err != nil {
-		return nil, xerrors.Errorf("Handle.create(%s) error: %w", url, err)
-	}
-
-	//Bodyからデータを抜き出す
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
-		return nil, xerrors.Errorf("RequestBody read error: %w", url, err)
+		return xerrors.Errorf("RequestBody read error(%s): %w", r.URL, err)
 	}
 
-	if b == nil || len(b) == 0 {
-		return p, nil
+	if len(b) == 0 {
+		return nil
 	}
 
 	err = json.Unmarshal(b, p)
 	if err != nil {
-		return nil, xerrors.Errorf("json.Unmarshal() error: %w", err)
+		return xerrors.Errorf("json.Unmarshal() error: %w", err)
 	}
 
-	return p, nil
+	return nil
 }
 
 func (h *Handle) create(url string) (Parameter, error) {
@@ -93,18 +85,33 @@ func (h *Handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	dump(r)
 
-	//request body
-	p, err := h.createParameter(r)
+	//フロントが使用するメソッドのみ許可(GETで更新系APIが実行できてしまうのを防ぐ)
+	switch r.Method {
+	case http.MethodPost, http.MethodPatch, http.MethodDelete:
+	default:
+		w.Header().Set("Allow", "POST, PATCH, DELETE")
+		writeErrorJSON(w, http.StatusMethodNotAllowed, fmt.Errorf("method not allowed[%s]", r.Method))
+		return
+	}
+
+	//リクエストからパラメータ引数を指定
+	p, err := h.create(r.URL.Path)
 	if err != nil {
-		//Not Found
-		writeErrorJSON(w, err)
+		writeErrorJSON(w, http.StatusNotFound, err)
+		return
+	}
+
+	//request body
+	err = h.bind(r, p)
+	if err != nil {
+		writeErrorJSON(w, http.StatusBadRequest, err)
 		return
 	}
 
 	// schema
 	res, err := p.Processing()
 	if err != nil {
-		writeErrorJSON(w, err)
+		writeErrorJSON(w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -114,13 +121,12 @@ func (h *Handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func write(w http.ResponseWriter, res Return) {
 
 	if res == nil {
-		//Not Found
-		writeErrorJSON(w, fmt.Errorf("Processing() is nil"))
+		writeErrorJSON(w, http.StatusInternalServerError, fmt.Errorf("Processing() is nil"))
 		return
 	}
 
 	if !res.IsSuccess() {
-		writeStatusJSON(w, res.GetStatus())
+		writeErrorJSON(w, http.StatusInternalServerError, fmt.Errorf("processing did not succeed"))
 		return
 	}
 
@@ -131,13 +137,14 @@ func writeJSON(w http.ResponseWriter, x interface{}) {
 	//json write
 	b, err := json.Marshal(x)
 	if err != nil {
-		writeErrorJSON(w, err)
+		writeErrorJSON(w, http.StatusInternalServerError, err)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	_, err = w.Write(b)
 	if err != nil {
-		log.Println("Write error: %+v", err)
+		log.Printf("Write error: %+v", err)
 		return
 	}
 }
@@ -147,21 +154,24 @@ type Parameter interface {
 }
 
 type Return interface {
-	GetStatus() Status
 	IsSuccess() bool
 }
 
-func writeStatusJSON(w http.ResponseWriter, status Status) {
-}
+//エラー時はHTTPステータス + {"error": "..."} を返し、フロント側(axios)で検知できるようにする
+func writeErrorJSON(w http.ResponseWriter, code int, err error) {
 
-func writeErrorJSON(w http.ResponseWriter, err error) {
+	log.Printf("api error: %+v", err)
 
-	log.Printf("write error: %+v", err)
+	b, _ := json.Marshal(struct {
+		Error string `json:"error"`
+	}{Error: err.Error()})
 
-	res := struct {
-	}{}
-
-	writeJSON(w, res)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	_, err = w.Write(b)
+	if err != nil {
+		log.Printf("Write error: %+v", err)
+	}
 }
 
 func dump(r *http.Request) {

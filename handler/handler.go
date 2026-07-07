@@ -6,7 +6,7 @@ import (
 
 	"github.com/ikascrew/ikasbox/config"
 	"github.com/ikascrew/ikasbox/handler/api"
-	. "github.com/ikascrew/ikasbox/handler/internal"
+	"github.com/ikascrew/ikasbox/handler/internal"
 )
 
 func Listen() error {
@@ -39,5 +39,5 @@ func register() error {
 	// HTML UI has been replaced by the React SPA + JSON API.
 	http.HandleFunc("/project/content/list/", projectContentListHandler)
 
-	return RegisterSPA()
+	return internal.RegisterSPA()
 }

@@ -1,8 +1,21 @@
+import { writeFileSync } from "node:fs";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
+// emptyOutDir wipes the committed .gitkeep placeholder that guarantees the
+// go:embed directive compiles on a fresh checkout — put it back after every
+// build so it never shows up as deleted in git status.
+function restoreGitkeep() {
+  return {
+    name: "restore-gitkeep",
+    closeBundle() {
+      writeFileSync("../handler/internal/_assets/spa/.gitkeep", "");
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), restoreGitkeep()],
   server: {
     port: 3000,
     proxy: {
