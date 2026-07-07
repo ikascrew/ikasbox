@@ -32,6 +32,7 @@ func init() {
 	apiMap["v1/projects/group/add"] = newProjectGroupAdd
 	apiMap["v1/projects/contents"] = newProjectContentView
 	apiMap["v1/projects/register"] = newProjectRegister
+	apiMap["v1/projects/rename"] = newProjectRename
 	apiMap["v1/projects/delete"] = newProjectDelete
 }
 

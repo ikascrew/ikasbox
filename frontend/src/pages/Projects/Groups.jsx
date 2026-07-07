@@ -6,11 +6,13 @@ import API from "../../API";
 import Util from "../../Util";
 
 import {
-  Button, Dialog, DialogTitle, DialogContent, List, ListItemButton, ListItemText
+  TextField, Stack, Button, Dialog, DialogTitle, DialogContent, List, ListItemButton, ListItemText
 } from '@mui/material';
 
 import FlexTable from "../../components/FlexTable";
 import NameLink from "../../components/NameLink.jsx";
+import LoadingButton from "../../components/LoadingButton.jsx";
+import { Alert } from "../Layout.jsx";
 
 class ProjectGroups extends React.Component {
 
@@ -18,7 +20,8 @@ class ProjectGroups extends React.Component {
     super(props);
     this.state = {
       groups : new Map(),
-      addOpen : false
+      addOpen : false,
+      name : ""
     }
 
     this.columns = [
@@ -56,7 +59,8 @@ class ProjectGroups extends React.Component {
       })
 
       this.setState({
-        groups : groups
+        groups : groups,
+        name : result.project.name
       });
 
       this.table.current.set(result.groups);
@@ -69,6 +73,26 @@ class ProjectGroups extends React.Component {
   contentLink(val, row) {
     return <NameLink href={"/groups/contents/" + row["id"]}>{val}</NameLink>;
   }
+
+  handleChangeName = (event) => {
+    this.setState({
+      name: event.target.value
+    });
+  };
+
+  handleSaveName = () => {
+
+    var args = {
+      projectId: Number(this.projectId),
+      name: this.state.name
+    }
+
+    return API.patch("/api/v1/projects/rename", args).then(() => {
+      Alert("Project", "Name updated.");
+    }).catch((err) => {
+      console.log(err);
+    });
+  };
 
   handleOpenAdd = () => {
     this.setState({ addOpen: true });
@@ -98,6 +122,20 @@ class ProjectGroups extends React.Component {
     var groups = this.state.groups;
 
     return (<>
+
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ marginBottom: "10px" }}>
+        <TextField
+          value={this.state.name}
+          onChange={this.handleChangeName}
+          autoFocus margin="dense"
+          id="name" type="text" label="Name"
+          variant="standard"
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+        />
+        <LoadingButton onClick={this.handleSaveName}>Save</LoadingButton>
+      </Stack>
+
       <Button variant="contained" onClick={this.handleOpenAdd}>+</Button>
 
       <Dialog open={this.state.addOpen} onClose={this.handleCloseAdd}>

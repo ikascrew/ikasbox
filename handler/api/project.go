@@ -162,6 +162,33 @@ func (pr *ProjectRegister) Processing() (Return, error) {
 	return &ret, nil
 }
 
+type ProjectRename struct {
+	ProjectId int    `json:"projectId"`
+	Name      string `json:"name"`
+}
+
+type ProjectRenameReturn struct {
+	Status
+}
+
+func newProjectRename() Parameter {
+	var pr ProjectRename
+	return &pr
+}
+
+func (pr *ProjectRename) Processing() (Return, error) {
+
+	var ret ProjectRenameReturn
+
+	err := db.RenameProject(pr.ProjectId, pr.Name)
+	if err != nil {
+		return nil, xerrors.Errorf("db.RenameProject() error: %w", err)
+	}
+
+	ret.success = true
+	return &ret, nil
+}
+
 type ProjectDelete struct {
 	ProjectId int `json:"projectId"`
 }

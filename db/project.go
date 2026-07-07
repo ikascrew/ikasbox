@@ -90,6 +90,22 @@ func RegisterProject(name string, width int, height int) error {
 	return nil
 }
 
+// RenameProject updates a project's name only; its resolution, group
+// associations, and contents are left untouched.
+func RenameProject(id int, name string) error {
+
+	p, err := Project{}.Find(id)
+	if err != nil {
+		return xerrors.Errorf("project find: %w", err)
+	}
+
+	if _, arErr := p.Update(ProjectParams{Name: name, UpdatedAt: time.Now()}); arErr != nil {
+		return xerrors.Errorf("project update: %w", arErr)
+	}
+
+	return nil
+}
+
 // DeleteProject removes a project together with its group associations.
 // The groups themselves (and their contents) are left untouched.
 func DeleteProject(id int) error {
