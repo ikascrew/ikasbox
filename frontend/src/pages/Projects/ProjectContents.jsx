@@ -61,7 +61,7 @@ class ProjectContents extends React.Component {
         </a>
 
         <CardContent>
-          <Typography gutterBottom variant="h6" component="div"> {obj.name} </Typography>
+          <Typography gutterBottom variant="body1" component="div" noWrap> {obj.name} </Typography>
           <Typography variant="body2" color="text.secondary"></Typography>
         </CardContent>
 
