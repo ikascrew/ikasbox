@@ -5,8 +5,20 @@ const axios = axiosBase.create({
     'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest'
   },
-  responseType: 'json'  
+  responseType: 'json'
 });
+
+// The server reports failures as 4xx/5xx with a {"error": "..."} body.
+// Log the detail here, then keep the promise rejected so callers' .then()
+// (which assumes success) never runs on a failed request.
+axios.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    const detail = err.response && err.response.data && err.response.data.error;
+    console.error("API error:", detail || err.message);
+    return Promise.reject(err);
+  }
+);
 
 class API {
 
