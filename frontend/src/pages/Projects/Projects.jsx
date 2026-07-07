@@ -4,6 +4,7 @@ import API from "../../API";
 import Util from "../../Util";
 
 import {
+  Box,
   Button
 } from '@mui/material';
 
@@ -24,13 +25,11 @@ class Projects extends React.Component {
     this.columns = [
       { id: 'id', label: 'ID', minWidth: 80, width: 80, align: 'center' },
       { id: 'name', label: 'Name', minWidth: 100,
-        format: (val, row) => this.contentLink(val, row) },
+        format: (val, row) => this.nameCell(val, row) },
       { id: 'created_at', label: 'Created At', minWidth: 190, width: 190, align: 'center',
         format: (value) => Util.formatDate(value) },
       { id: 'updated_at', label: 'Updated At', minWidth: 190, width: 190, align: 'center',
         format: (value) => Util.formatDate(value) },
-      { id: 'contents', label: '', minWidth: 100,
-        format: (val, row) => this.contentsLink(row) },
       { id: 'delete', label: '', minWidth: 100,
         format: (val, row) => this.createDeleteButton(val, row) },
     ];
@@ -67,8 +66,25 @@ class Projects extends React.Component {
     return <a href={"/projects/group/" + row["id"]}>{val}</a>;
   }
 
-  contentsLink(row) {
-    return <a href={"/projects/contents/" + row["id"]}>Contents</a>;
+  handleOpenContents(row) {
+    location.href = "/projects/contents/" + row["id"];
+  }
+
+  createContentsButton(row) {
+    return (
+      <Button variant="contained" onClick={() => this.handleOpenContents(row)}>
+        Contents
+      </Button>
+    );
+  }
+
+  nameCell(val, row) {
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {this.contentLink(val, row)}
+        {this.createContentsButton(row)}
+      </Box>
+    );
   }
 
   handleDelete(val) {
