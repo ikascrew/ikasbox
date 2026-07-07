@@ -1,24 +1,23 @@
 import React from "react"
 
-import Select from "../../components/FormSelect";
 import {withParams} from "../Pages.jsx"
 
 import API from "../../API";
 import Util from "../../Util";
 
 import {
-  Button
+  Button, Dialog, DialogTitle, DialogContent, List, ListItemButton, ListItemText
 } from '@mui/material';
 
 import FlexTable from "../../components/FlexTable";
 
 class ProjectGroups extends React.Component {
-  
+
   constructor(props) {
     super(props);
     this.state = {
-      groups : [],
-      value: ""
+      groups : new Map(),
+      addOpen : false
     }
 
     this.columns = [
@@ -50,16 +49,14 @@ class ProjectGroups extends React.Component {
     API.post("/api/v1/projects/group", args).then((res) => {
       var result = res.data;
 
-      if ( this.groups === undefined ) {
-        let groups = new Map();
-        result.allGroups.forEach( (elm) => {
-          groups.set(elm.id,elm.name);
-        })
+      let groups = new Map();
+      result.allGroups.forEach( (elm) => {
+        groups.set(elm.id,elm.name);
+      })
 
-        this.setState({
-          groups : groups
-        });
-      }
+      this.setState({
+        groups : groups
+      });
 
       this.table.current.set(result.groups);
 
@@ -72,7 +69,15 @@ class ProjectGroups extends React.Component {
     return <a href={"/groups/contents/" + row["id"]}>{val}</a>;
   }
 
-  handleChangeValue = (groupId) => {
+  handleOpenAdd = () => {
+    this.setState({ addOpen: true });
+  };
+
+  handleCloseAdd = () => {
+    this.setState({ addOpen: false });
+  };
+
+  handleAddGroup = (groupId) => {
 
     var args = {
       projectId : Number(this.projectId),
@@ -80,7 +85,7 @@ class ProjectGroups extends React.Component {
     }
 
     API.patch("/api/v1/projects/group/add", args).then((res) => {
-      this.setState({ value: "" });
+      this.handleCloseAdd();
       this.view();
     }).catch((err) => {
       console.log(err)
@@ -89,8 +94,26 @@ class ProjectGroups extends React.Component {
 
   render() {
 
+    var groups = this.state.groups;
+
     return (<>
-      <Select value={this.state.value} values={this.state.groups} onChange={this.handleChangeValue} empty="Add group..." />
+      <Button variant="contained" onClick={this.handleOpenAdd}>+</Button>
+
+      <Dialog open={this.state.addOpen} onClose={this.handleCloseAdd}>
+        <DialogTitle>Add Group</DialogTitle>
+        <DialogContent>
+          <List>
+{Array.from(groups.entries()).map( ([id, name]) => {
+  return (
+    <ListItemButton key={id} onClick={() => this.handleAddGroup(id)}>
+      <ListItemText primary={name} />
+    </ListItemButton>
+  );
+})}
+          </List>
+        </DialogContent>
+      </Dialog>
+
       <FlexTable columns={this.columns} ref={this.table} />
     </>);
   }
