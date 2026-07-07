@@ -10,6 +10,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 
 import LoadingButton from "../../components/LoadingButton";
 import API from "../../API";
+import { Alert } from "../Layout.jsx";
 
 class GroupRegisterDialog extends React.Component {
 
@@ -55,6 +56,9 @@ class GroupRegisterDialog extends React.Component {
           this.commitFunc();
         }
         this.handleClose();
+        if ( path !== "" ) {
+          Alert("Register", "Import started in the background. Contents will appear as they finish processing.");
+        }
         resolv("success");
       }).catch( (err) => {
         reject("error");
@@ -69,7 +73,8 @@ class GroupRegisterDialog extends React.Component {
         <DialogTitle>Register</DialogTitle>
         <DialogContent>
           <DialogContentText>
-          Set the path on the server when setting Path.
+          Set the path on the server when setting Path. Media files under
+          that directory will be imported into this group automatically.
           </DialogContentText>
 
           <TextField

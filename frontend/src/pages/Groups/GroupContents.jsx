@@ -4,8 +4,7 @@ import API from "../../API.js"
 import Paging from "../Paging.js";
 
 import {withParams} from "../Pages.jsx"
-import {TextField,Grid,Pagination,Card,CardMedia,CardContent,Typography,CardActions,Button} from '@mui/material';
-import GroupImportDialog from "./GroupImportDialog.jsx";
+import {TextField,Grid,Pagination,Card,CardMedia,CardContent,Typography} from '@mui/material';
 
 class GroupContents extends React.Component {
 
@@ -21,12 +20,7 @@ class GroupContents extends React.Component {
 
     this.nameTxt = React.createRef();
     this.pathTxt = React.createRef();
-    this.importDialog = React.createRef();
   }
-
-  handleOpenImport = () => {
-    this.importDialog.current.open();
-  };
 
   componentDidMount() {
     var paging = this.state.paging;
@@ -92,9 +86,6 @@ class GroupContents extends React.Component {
         inputRef={this.pathTxt}
         fullWidth
       />
-
-      <GroupImportDialog ref={this.importDialog} groupId={this.groupId} />
-      <Button variant="contained" sx={{marginTop:"10px"}} onClick={this.handleOpenImport}>Import</Button>
 
       <Grid container sx={{marginTop:"10px"}} justify="center">
 

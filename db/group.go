@@ -61,7 +61,7 @@ func FindGroup(id int) (*Group, error) {
 	return g, nil
 }
 
-func RegisterGroup(name string, path string) error {
+func RegisterGroup(name string, path string) (int, error) {
 
 	now := time.Now()
 	g := Group{
@@ -72,10 +72,10 @@ func RegisterGroup(name string, path string) error {
 	}
 	_, err := g.Save(false)
 	if err != nil {
-		return xerrors.Errorf("Group Save() error: %w", err)
+		return 0, xerrors.Errorf("Group Save() error: %w", err)
 	}
 
-	return nil
+	return g.ID, nil
 }
 
 // DeleteGroup removes a group together with all of its contents and
