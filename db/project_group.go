@@ -85,6 +85,25 @@ func AddProjectGroup(pId, gId int) error {
 	return nil
 }
 
+// RemoveProjectGroup unassigns a single group from a project. The group
+// itself (and its contents) is left untouched.
+func RemoveProjectGroup(pId, gId int) error {
+
+	pg := NewProjectGroup()
+	pgs, err := pg.Where("project_id", pId).And("group_id", gId).Query()
+	if err != nil {
+		return xerrors.Errorf("select project_group error: %w", err)
+	}
+
+	for _, elm := range pgs {
+		if _, arErr := elm.Delete(); arErr != nil {
+			return xerrors.Errorf("project_group delete: %w", arErr)
+		}
+	}
+
+	return nil
+}
+
 func DeleteProjectGroups(pId int) error {
 
 	pgs, err := getProjectGroupList(pId)

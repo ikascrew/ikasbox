@@ -105,6 +105,33 @@ func (pa *ProjectGroupAdd) Processing() (Return, error) {
 	return &ret, nil
 }
 
+type ProjectGroupRemove struct {
+	ProjectId int `json:"projectId"`
+	GroupId   int `json:"groupId"`
+}
+
+type ProjectGroupRemoveReturn struct {
+	Status
+}
+
+func newProjectGroupRemove() Parameter {
+	var pr ProjectGroupRemove
+	return &pr
+}
+
+func (pr *ProjectGroupRemove) Processing() (Return, error) {
+
+	var ret ProjectGroupRemoveReturn
+
+	err := db.RemoveProjectGroup(pr.ProjectId, pr.GroupId)
+	if err != nil {
+		return nil, xerrors.Errorf("RemoveProjectGroup() error: %w", err)
+	}
+
+	ret.success = true
+	return &ret, nil
+}
+
 type ProjectContentView struct {
 	ProjectId int `json:"projectId"`
 }

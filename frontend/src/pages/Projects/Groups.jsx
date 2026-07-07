@@ -12,7 +12,7 @@ import {
 import FlexTable from "../../components/FlexTable";
 import NameLink from "../../components/NameLink.jsx";
 import LoadingButton from "../../components/LoadingButton.jsx";
-import { Alert } from "../Layout.jsx";
+import { Alert, Confirm } from "../Layout.jsx";
 
 class ProjectGroups extends React.Component {
 
@@ -32,6 +32,8 @@ class ProjectGroups extends React.Component {
         format: (value) => Util.formatDate(value) },
       { id: 'updated_at', label: 'Updated At', minWidth: 190, width: 190, align: 'center',
         format: (value) => Util.formatDate(value) },
+      { id: 'delete', label: '', minWidth: 100, width: 100,
+        format: (val, row) => this.createDeleteButton(row) },
     ];
 
     this.projectId = this.props.params.id;
@@ -117,6 +119,34 @@ class ProjectGroups extends React.Component {
     });
   }
 
+  handleRemoveGroup(row) {
+
+    Confirm("Remove Group", "Remove group \"" + row.name + "\" from this project?").then(() => {
+
+      var args = {
+        projectId: Number(this.projectId),
+        groupId: row.id
+      }
+
+      API.delete("/api/v1/projects/group/remove", { data: args }).then(() => {
+        this.view();
+      }).catch((err) => {
+        console.log(err);
+      });
+
+    }).catch((e) => {
+      console.log(e);
+    });
+  }
+
+  createDeleteButton(row) {
+    return (
+      <Button color="error" variant="contained" onClick={() => this.handleRemoveGroup(row)}>
+        Delete
+      </Button>
+    );
+  }
+
   render() {
 
     var groups = this.state.groups;
@@ -136,8 +166,6 @@ class ProjectGroups extends React.Component {
         <LoadingButton onClick={this.handleSaveName}>Save</LoadingButton>
       </Stack>
 
-      <Button variant="contained" onClick={this.handleOpenAdd}>+</Button>
-
       <Dialog open={this.state.addOpen} onClose={this.handleCloseAdd}>
         <DialogTitle>Add Group</DialogTitle>
         <DialogContent>
@@ -154,6 +182,8 @@ class ProjectGroups extends React.Component {
       </Dialog>
 
       <FlexTable columns={this.columns} ref={this.table} />
+
+      <Button variant="contained" sx={{ marginTop: "10px" }} onClick={this.handleOpenAdd}>+</Button>
     </>);
   }
 }
