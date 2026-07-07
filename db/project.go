@@ -89,3 +89,23 @@ func RegisterProject(name string, width int, height int) error {
 
 	return nil
 }
+
+// DeleteProject removes a project together with its group associations.
+// The groups themselves (and their contents) are left untouched.
+func DeleteProject(id int) error {
+
+	p, err := Project{}.Find(id)
+	if err != nil {
+		return xerrors.Errorf("project find: %w", err)
+	}
+
+	if err := DeleteProjectGroups(id); err != nil {
+		return xerrors.Errorf("delete project groups: %w", err)
+	}
+
+	if _, arErr := p.Delete(); arErr != nil {
+		return xerrors.Errorf("project delete: %w", arErr)
+	}
+
+	return nil
+}

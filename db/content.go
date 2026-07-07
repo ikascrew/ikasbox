@@ -2,6 +2,8 @@ package db
 
 import (
 	"time"
+
+	"golang.org/x/xerrors"
 )
 
 const (
@@ -67,4 +69,22 @@ func SelectPagingContent(gId int, pg *Paging) ([]*Content, error) {
 	pg.SetCount(cnt)
 
 	return dao.Where("group_id", gId).Order("id", "asc").Limit(pg.Limit).Offset((pg.Current - 1) * pg.Limit).Query()
+}
+
+func DeleteContent(id int) error {
+
+	c, err := Content{}.Find(id)
+	if err != nil {
+		return xerrors.Errorf("content find: %w", err)
+	}
+
+	if err := DeleteContentThumbnails(c.ID); err != nil {
+		return xerrors.Errorf("content thumbnail delete: %w", err)
+	}
+
+	if _, arErr := c.Delete(); arErr != nil {
+		return xerrors.Errorf("content delete: %w", arErr)
+	}
+
+	return nil
 }

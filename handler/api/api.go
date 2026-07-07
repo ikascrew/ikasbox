@@ -22,6 +22,7 @@ func init() {
 	apiMap["v1/groups/register"] = newGroupRegister
 	apiMap["v1/groups/import"] = newGroupImport
 	apiMap["v1/groups/check"] = newGroupCheck
+	apiMap["v1/groups/delete"] = newGroupDelete
 	apiMap["v1/groups/contents"] = newContentView
 
 	apiMap["v1/contents/view"] = newContentFind
@@ -31,6 +32,7 @@ func init() {
 	apiMap["v1/projects/group/add"] = newProjectGroupAdd
 	apiMap["v1/projects/contents"] = newProjectContentView
 	apiMap["v1/projects/register"] = newProjectRegister
+	apiMap["v1/projects/delete"] = newProjectDelete
 }
 
 type Handle struct {

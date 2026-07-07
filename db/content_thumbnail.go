@@ -57,6 +57,14 @@ func (t *ContentThumbnail) Load() error {
 	return nil
 }
 
+func DeleteContentThumbnails(id int) error {
+	_, err := db.Exec("delete from content_thumbnails where id = ?", id)
+	if err != nil {
+		return xerrors.Errorf("content thumbnail delete: %w", err)
+	}
+	return nil
+}
+
 func SelectContentThumbnails(ID int) ([]*ContentThumbnail, error) {
 
 	sq := "select id,seq,data from content_thumbnails order by seq"

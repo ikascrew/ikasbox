@@ -36,6 +36,8 @@ class Groups extends React.Component {
         format: (value) => Util.formatDate(value) },
       { id: 'check', label: '', minWidth: 250,
         format: (val, row) => this.createCheckButton(val, row) },
+      { id: 'delete', label: '', minWidth: 100,
+        format: (val, row) => this.createDeleteButton(val, row) },
     ];
 
     this.table = React.createRef();
@@ -133,6 +135,33 @@ class Groups extends React.Component {
     return (
       <Button color="warning" variant="contained" onClick={() => this.handleCheck(row)}>
         Check
+      </Button>
+    );
+  }
+
+  handleDelete(val) {
+
+    Confirm("Group Delete", "Delete group \"" + val.name + "\" and all its contents?").then(() => {
+
+      var args = {
+        groupId: val.id
+      }
+
+      API.delete("/api/v1/groups/delete", { data: args }).then(() => {
+        this.view(this.state.paging);
+      }).catch((err) => {
+        console.log(err);
+      });
+
+    }).catch((e) => {
+      console.log(e);
+    });
+  }
+
+  createDeleteButton(val, row) {
+    return (
+      <Button color="error" variant="contained" onClick={() => this.handleDelete(row)}>
+        Delete
       </Button>
     );
   }

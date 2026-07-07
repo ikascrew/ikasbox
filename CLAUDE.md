@@ -14,8 +14,8 @@ ikasbox is a Go server + React SPA for managing video/image content (groups, pro
 cd cmd
 go run main.go init            # create SQLite database (fails if ikasbox.db exists)
 go run main.go start           # start the server on port 5555
-go run main.go group ...       # group subcommands: register, import, check, list (remove is a stub)
-go run main.go project ...     # project subcommands: register, list, add
+go run main.go group ...       # group subcommands: register, import, check, list, remove
+go run main.go project ...     # project subcommands: register, list, add, remove
 ```
 
 - Flags (defined in `cmd/main.go`): `-db <file>` (default `ikasbox.db`), `-ext <patterns>` (import extensions, default `*.mp4,*.mpeg,*.png,*.jpg,*.jpeg`). A DB filename can also be embedded at build time via `-ldflags "-X main.embedDB=xxxx.db"`.

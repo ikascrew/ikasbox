@@ -9,6 +9,7 @@ import {
 
 import FlexTable from "../../components/FlexTable";
 import ProjectRegisterDialog from "./ProjectRegisterDialog";
+import { Confirm } from "../Layout.jsx";
 
 class Projects extends React.Component {
   
@@ -30,6 +31,8 @@ class Projects extends React.Component {
         format: (value) => Util.formatDate(value) },
       { id: 'contents', label: '', minWidth: 100,
         format: (val, row) => this.contentsLink(row) },
+      { id: 'delete', label: '', minWidth: 100,
+        format: (val, row) => this.createDeleteButton(val, row) },
     ];
 
     this.table = React.createRef();
@@ -66,6 +69,33 @@ class Projects extends React.Component {
 
   contentsLink(row) {
     return <a href={"/projects/contents/" + row["id"]}>Contents</a>;
+  }
+
+  handleDelete(val) {
+
+    Confirm("Project Delete", "Delete project \"" + val.name + "\"?").then(() => {
+
+      var args = {
+        projectId: val.id
+      }
+
+      API.delete("/api/v1/projects/delete", { data: args }).then(() => {
+        this.view(this.state.paging);
+      }).catch((err) => {
+        console.log(err);
+      });
+
+    }).catch((e) => {
+      console.log(e);
+    });
+  }
+
+  createDeleteButton(val, row) {
+    return (
+      <Button color="error" variant="contained" onClick={() => this.handleDelete(row)}>
+        Delete
+      </Button>
+    );
   }
 
   handleOpenRegister() {

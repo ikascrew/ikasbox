@@ -85,6 +85,22 @@ func AddProjectGroup(pId, gId int) error {
 	return nil
 }
 
+func DeleteProjectGroups(pId int) error {
+
+	pgs, err := getProjectGroupList(pId)
+	if err != nil {
+		return xerrors.Errorf("getProjectGroupList() error: %w", err)
+	}
+
+	for _, pg := range pgs {
+		if _, arErr := pg.Delete(); arErr != nil {
+			return xerrors.Errorf("project_group delete: %w", arErr)
+		}
+	}
+
+	return nil
+}
+
 func SelectProjectContentList(id int) ([]*Content, error) {
 
 	groups, err := SelectProjectGroupList(id)

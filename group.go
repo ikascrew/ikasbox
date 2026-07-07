@@ -34,7 +34,7 @@ func setGroup() error {
 	case "list":
 		_, err = viewGroups()
 	case "remove":
-		err = fmt.Errorf("not implemented.")
+		err = removeGroup(conf.Arguments[0])
 	default:
 		err = fmt.Errorf("not found function")
 	}
@@ -72,6 +72,26 @@ func registerGroup(name string) error {
 
 	fmt.Printf("New Group:%s[%d]\n", name, group.ID)
 
+	return nil
+}
+
+func removeGroup(arg string) error {
+
+	id, err := strconv.Atoi(arg)
+	if err != nil {
+		return xerrors.Errorf("input id: %w", err)
+	}
+
+	fmt.Printf("Delete group[%d] and all its contents?[Y/n]:", id)
+	if ans := util.Input(); ans != "Y" {
+		return nil
+	}
+
+	if err := db.DeleteGroup(id); err != nil {
+		return xerrors.Errorf("delete group: %w", err)
+	}
+
+	fmt.Printf("Deleted Group[%d]\n", id)
 	return nil
 }
 

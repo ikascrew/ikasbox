@@ -101,6 +101,32 @@ func (gc *GroupCheck) Processing() (Return, error) {
 	return &ret, nil
 }
 
+type GroupDelete struct {
+	GroupId int `json:"groupId"`
+}
+
+type GroupDeleteReturn struct {
+	Status
+}
+
+func newGroupDelete() Parameter {
+	var gd GroupDelete
+	return &gd
+}
+
+func (gd *GroupDelete) Processing() (Return, error) {
+
+	var ret GroupDeleteReturn
+
+	err := db.DeleteGroup(gd.GroupId)
+	if err != nil {
+		return nil, xerrors.Errorf("db.DeleteGroup() error: %w", err)
+	}
+
+	ret.success = true
+	return &ret, nil
+}
+
 type GroupImport struct {
 	GroupId int    `json:"groupId"`
 	Path    string `json:"path"`

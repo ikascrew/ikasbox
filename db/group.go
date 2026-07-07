@@ -77,3 +77,30 @@ func RegisterGroup(name string, path string) error {
 
 	return nil
 }
+
+// DeleteGroup removes a group together with all of its contents and
+// their thumbnails.
+func DeleteGroup(id int) error {
+
+	g, err := Group{}.Find(id)
+	if err != nil {
+		return xerrors.Errorf("group find: %w", err)
+	}
+
+	contents, err := SelectContent(id)
+	if err != nil {
+		return xerrors.Errorf("select content: %w", err)
+	}
+
+	for _, c := range contents {
+		if err := DeleteContent(c.ID); err != nil {
+			return xerrors.Errorf("delete content[%d]: %w", c.ID, err)
+		}
+	}
+
+	if _, arErr := g.Delete(); arErr != nil {
+		return xerrors.Errorf("group delete: %w", arErr)
+	}
+
+	return nil
+}

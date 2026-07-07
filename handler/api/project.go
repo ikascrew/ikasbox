@@ -161,3 +161,29 @@ func (pr *ProjectRegister) Processing() (Return, error) {
 	ret.success = true
 	return &ret, nil
 }
+
+type ProjectDelete struct {
+	ProjectId int `json:"projectId"`
+}
+
+type ProjectDeleteReturn struct {
+	Status
+}
+
+func newProjectDelete() Parameter {
+	var pd ProjectDelete
+	return &pd
+}
+
+func (pd *ProjectDelete) Processing() (Return, error) {
+
+	var ret ProjectDeleteReturn
+
+	err := db.DeleteProject(pd.ProjectId)
+	if err != nil {
+		return nil, xerrors.Errorf("db.DeleteProject() error: %w", err)
+	}
+
+	ret.success = true
+	return &ret, nil
+}

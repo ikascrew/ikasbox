@@ -34,6 +34,8 @@ func setProject() error {
 
 	case "register":
 		err = registerProject(args[0])
+	case "remove":
+		err = removeProject(args[0])
 	default:
 		err = fmt.Errorf("sub command error[%s]", conf.Function)
 	}
@@ -101,6 +103,26 @@ func registerProject(name string) error {
 
 	fmt.Printf("New Project:%s[%d]\n", name, project.ID)
 
+	return nil
+}
+
+func removeProject(arg string) error {
+
+	id, err := strconv.Atoi(arg)
+	if err != nil {
+		return xerrors.Errorf("input id: %w", err)
+	}
+
+	fmt.Printf("Delete project[%d]?[Y/n]:", id)
+	if ans := util.Input(); ans != "Y" {
+		return nil
+	}
+
+	if err := db.DeleteProject(id); err != nil {
+		return xerrors.Errorf("delete project: %w", err)
+	}
+
+	fmt.Printf("Deleted Project[%d]\n", id)
 	return nil
 }
 
