@@ -21,6 +21,7 @@ go run main.go project ...     # project subcommands: register, list, add, remov
 - Flags (defined in `cmd/main.go`): `-db <file>` (default `ikasbox.db`), `-ext <patterns>` (import extensions, default `*.mp4,*.mpeg,*.png,*.jpg,*.jpeg`). A DB filename can also be embedded at build time via `-ldflags "-X main.embedDB=xxxx.db"`.
 - `cmd/develop.sh` runs the server with `skewer` for live reload during development.
 - Tests: `go test ./db/` (only `db/content_thumbnail_test.go` exists). Run a single test with `go test ./db/ -run TestName`.
+- Frontend tests: `npm test` (in `frontend/`, runs `vitest run`). See the React frontend section below.
 - **`npm run build` (in `frontend/`) must be run at least once before `go build`/`go run` on a fresh checkout.** The React build output is `go:embed`-ed directly into the `handler/internal` package (see below) — the embed directive fails to compile if that directory has no files in it. A placeholder `.gitkeep` is committed so a pristine clone still compiles; after the first `npm run build` the real build output satisfies the embed.
 
 ### React frontend (`frontend/`)
@@ -29,6 +30,7 @@ go run main.go project ...     # project subcommands: register, list, add, remov
 npm run dev      # Vite dev server on http://localhost:3000, proxies /api, /thumb, /content/media to :5555
 npm run build    # production build, output straight into handler/internal/_assets/spa (embedded by the Go server)
 npm run preview  # preview the production build
+npm test         # vitest run — unit/component tests, jsdom environment
 ```
 
 Development flow: run the Go server (port 5555) and `npm run dev` together; the dev server proxies API calls. In production, `go run main.go start` alone serves everything: the built React SPA (embedded from `handler/internal/_assets/spa`) plus the JSON API — no separate static file server or `npm run dev` needed.
@@ -49,7 +51,8 @@ Development flow: run the Go server (port 5555) and `npm run dev` together; the 
 
 ### React side (`frontend/src/`)
 
-- Class-based React 18 components with MUI (Material UI), react-router-dom v6, and axios (wrapped in `API.js`; all calls are POST/PATCH/DELETE JSON to `/api/v1/...`).
+- Class-based React 18 components with MUI (Material UI), react-router v7 (the unified `react-router` package, not `react-router-dom`), and axios (wrapped in `API.js`; all calls are POST/PATCH/DELETE JSON to `/api/v1/...`).
 - Built with Vite (`vite.config.js`, entry `index.html` → `src/App.jsx`). Files containing JSX use the `.jsx` extension; plain modules (`API.js`, `Util.js`, `Paging.js`) stay `.js`. Follow this convention for new files — Vite/rollup requires JSX to be in `.jsx`/`.tsx` files.
 - `src/theme.js` — the single shared MUI `createTheme()`; `App.jsx` wraps everything in `ThemeProvider` + `CssBaseline`. Adjust palette/typography/shape here rather than per-component overrides.
 - `App.jsx` mounts the app; `pages/Pages.jsx` defines routes; `pages/Layout.jsx` (AppBar + permanent `Drawer`) / `LayoutDialog.jsx` provide shared chrome; feature pages live under `pages/Projects/`, `pages/Groups/`, `pages/Contents/`; shared widgets under `components/`. There is no more custom layout CSS (`css/App.css`/`css/Layout.css` were removed) — styling goes through the theme and MUI's `sx` prop.
+- Tests are colocated `*.test.js`/`*.test.jsx` files (e.g. `pages/Paging.test.js`, `components/LoadingButton.test.jsx`) run via `vitest.config.js` (jsdom environment, `src/setupTests.js` wires up `@testing-library/jest-dom`). Prefer plain unit tests for pure logic (`Paging.js`, `Util.js`) and `@testing-library/react` render tests for components that don't need a live API — components that call `API.*` on mount aren't covered yet and would need mocking `axios`/`API.js` first.
