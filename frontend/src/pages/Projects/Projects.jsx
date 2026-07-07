@@ -30,7 +30,7 @@ class Projects extends React.Component {
         format: (value) => Util.formatDate(value) },
       { id: 'updated_at', label: 'Updated At', minWidth: 190, width: 190, align: 'center',
         format: (value) => Util.formatDate(value) },
-      { id: 'delete', label: '', minWidth: 100,
+      { id: 'delete', label: '', minWidth: 100, width: 100,
         format: (val, row) => this.createDeleteButton(val, row) },
     ];
 

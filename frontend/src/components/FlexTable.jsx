@@ -53,7 +53,7 @@ class FlexTable extends React.Component {
     return (<>
       <Paper sx={{ width: '100%', overflow: 'hidden', marginTop: "10px" }}>
         <TableContainer sx={{ maxHeight: 1000 }}>
-          <Table stickyHeader aria-label="sticky table">
+          <Table stickyHeader aria-label="sticky table" sx={{ tableLayout: "fixed" }}>
             <TableHead>
               <TableRow>
                 {columns.map((column) => (
