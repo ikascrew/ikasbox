@@ -30,9 +30,9 @@ class Groups extends React.Component {
     this.columns = [
       { id: 'name', label: 'Name', minWidth: 100,
         format: (val, row) => this.nameCell(val, row) },
-      { id: 'created_at', label: 'Created At', minWidth: 160, width: 160,
+      { id: 'created_at', label: 'Created At', minWidth: 190, width: 190, align: 'center',
         format: (value) => Util.formatDate(value) },
-      { id: 'updated_at', label: 'Updated At', minWidth: 160, width: 160,
+      { id: 'updated_at', label: 'Updated At', minWidth: 190, width: 190, align: 'center',
         format: (value) => Util.formatDate(value) },
       { id: 'delete', label: '', minWidth: 100, width: 100,
         format: (val, row) => this.createDeleteButton(val, row) },
