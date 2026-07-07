@@ -169,7 +169,7 @@ class Groups extends React.Component {
         groupId: val.id
       }
 
-      API.delete("/api/v1/groups/delete", { data: args }).then(() => {
+      API.delete("/api/v1/groups/delete", args).then(() => {
         this.view(this.state.paging);
       }).catch((err) => {
         console.log(err);

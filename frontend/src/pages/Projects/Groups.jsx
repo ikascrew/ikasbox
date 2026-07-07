@@ -128,7 +128,7 @@ class ProjectGroups extends React.Component {
         groupId: row.id
       }
 
-      API.delete("/api/v1/projects/group/remove", { data: args }).then(() => {
+      API.delete("/api/v1/projects/group/remove", args).then(() => {
         this.view();
       }).catch((err) => {
         console.log(err);

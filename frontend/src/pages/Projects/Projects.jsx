@@ -93,7 +93,7 @@ class Projects extends React.Component {
         projectId: val.id
       }
 
-      API.delete("/api/v1/projects/delete", { data: args }).then(() => {
+      API.delete("/api/v1/projects/delete", args).then(() => {
         this.view(this.state.paging);
       }).catch((err) => {
         console.log(err);
