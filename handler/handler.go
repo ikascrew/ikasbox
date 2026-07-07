@@ -34,5 +34,10 @@ func register() error {
 	http.HandleFunc("/content/media/", contentPlayHandler)
 	http.HandleFunc("/thumb/", thumbnailHandler)
 
+	// External ikascrew tools (server, client) fetch project content lists
+	// from this route directly; keep it even though the rest of the legacy
+	// HTML UI has been replaced by the React SPA + JSON API.
+	http.HandleFunc("/project/content/list/", projectContentListHandler)
+
 	return RegisterSPA()
 }
