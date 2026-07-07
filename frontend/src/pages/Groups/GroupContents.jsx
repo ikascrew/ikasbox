@@ -14,7 +14,7 @@ class GroupContents extends React.Component {
     this.state = {
       group : {},
       contents : [],
-      paging : Paging.create()
+      paging : Paging.create(100)
     }
 
     this.groupId = props.params.group_id;

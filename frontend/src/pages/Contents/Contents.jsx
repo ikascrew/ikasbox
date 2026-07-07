@@ -11,7 +11,7 @@ class Contents extends React.Component {
     super(props);
     this.state = {
       data : [],
-      paging : Paging.create()
+      paging : Paging.create(100)
     }
   }
 

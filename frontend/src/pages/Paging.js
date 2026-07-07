@@ -1,11 +1,11 @@
 import React from "react";
 
 class Paging {
-  static create() {
+  static create(limit = 10) {
     return {
       current:1,
       count:0,
-      limit:10
+      limit:limit
     }
   }
 }
