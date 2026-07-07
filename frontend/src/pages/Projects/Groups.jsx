@@ -69,7 +69,7 @@ class ProjectGroups extends React.Component {
   }
 
   contentLink(val, row) {
-    return <a href={"/projects/" + row["id"]}>{val}</a>;
+    return <a href={"/groups/contents/" + row["id"]}>{val}</a>;
   }
 
   handleChangeValue = (groupId) => {
