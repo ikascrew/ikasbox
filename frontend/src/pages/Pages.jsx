@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useParams,Routes,Route } from "react-router-dom";
+import { useParams,Routes,Route } from "react-router";
 import Index from "./Index.jsx"
 import Groups from "./Groups/Groups.jsx"
 import Contents from "./Contents/Contents.jsx"
