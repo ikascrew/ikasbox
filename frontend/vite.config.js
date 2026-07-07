@@ -14,6 +14,11 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "dist",
+    // Output straight into the Go package that embeds it (go:embed can only
+    // reach subdirectories of the package, not sibling directories), so the
+    // ikasbox binary can serve the built SPA without any separate static
+    // file server.
+    outDir: "../handler/internal/_assets/spa",
+    emptyOutDir: true,
   },
 });

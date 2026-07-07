@@ -7,6 +7,10 @@ ikasboxのデーモン化と、その他コマンドを設定できるように�
   React化:完了（webpackからViteに移行済み。Group/Project/Contents一覧、
       コンテンツ詳細再生、プロジェクトへのグループ割当、
       ディレクトリインポート（非同期）までWebで一通り操作可能）
+      デザインはMUIに統一（共通テーマ + Drawerレイアウト）。
+      レガシーなGoテンプレート(MDL)によるページは全廃止し、
+      Goサーバーはビルド済みReact(SPA)をgo:embedで配信するのみになった
+      （`npm run build` → `go run`の順で本番相当の画面が確認できる）
       swaggerの導入
 
   コンテンツのリフレッシュ機能を作成

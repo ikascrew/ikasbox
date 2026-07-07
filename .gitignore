@@ -1,4 +1,5 @@
 *.db
 node_modules
 *.exe
-frontend/dist
+handler/internal/_assets/spa/*
+!handler/internal/_assets/spa/.gitkeep

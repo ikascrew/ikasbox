@@ -4,19 +4,18 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
+import Drawer from '@mui/material/Drawer';
 
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import Grid from '@mui/material/Grid';
 
 import Pages from "./Pages.jsx";
 
-import "../css/Layout.css";
 import Dialog from "./LayoutDialog.jsx";
+
+const drawerWidth = 220;
 
 var inst;
 
@@ -55,88 +54,79 @@ class Layout extends React.Component {
     var selected = this.getLocation();
 
     return (
-      <>
-      <AppBar position="static" className="menuMar">
+      <Box sx={{ display: 'flex' }}>
+
+      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
-
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-          />
-
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <a href="/" className="rootMenu">ikasbox</a>
+            <Box component="a" href="/" sx={{ color: 'inherit', textDecoration: 'none' }}>ikasbox</Box>
           </Typography>
-
         </Toolbar>
       </AppBar>
 
       <Dialog ref={this.globalDialog} />
 
-      <Grid container spacing={1} className="MainGrid">
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+        }}
+      >
+        <Toolbar />
+        <List component="nav">
 
-        <Grid item xs={3} className="ListGrid">
-          <List component="nav" aria-label="main mailbox folders">
+          <ListItemButton
+            selected={selected === "category"}
+            onClick={(event) => this.handleListItemClick(event, "category")}
+          >
+            <ListItemIcon></ListItemIcon>
+            <ListItemText primary="Category" />
+          </ListItemButton>
 
+          <ListItemButton
+            selected={selected === "tags"}
+            onClick={(event) => this.handleListItemClick(event, "tags")}
+          >
+            <ListItemIcon></ListItemIcon>
+            <ListItemText primary="Tag" />
+          </ListItemButton>
 
-            <ListItemButton
-              selected={selected === "category"}
-              onClick={(event) => this.handleListItemClick(event, "category")}
-            >
-              <ListItemIcon>
-              </ListItemIcon>
-              <ListItemText primary="Category" />
-            </ListItemButton>
+          <ListItemButton
+            selected={selected === "contents"}
+            onClick={(event) => this.handleListItemClick(event, "contents")}
+          >
+            <ListItemIcon></ListItemIcon>
+            <ListItemText primary="Contents" />
+          </ListItemButton>
 
-            <ListItemButton
-              selected={selected === "tags"}
-              onClick={(event) => this.handleListItemClick(event, "tags")}
-            >
-              <ListItemIcon>
-              </ListItemIcon>
-              <ListItemText primary="Tag" />
-            </ListItemButton>
+          <ListItemButton
+            selected={selected === "groups"}
+            onClick={(event) => this.handleListItemClick(event, "groups")}
+          >
+            <ListItemIcon></ListItemIcon>
+            <ListItemText primary="Group" />
+          </ListItemButton>
 
-            <ListItemButton
-              selected={selected === "contents"}
-              onClick={(event) => this.handleListItemClick(event, "contents")}
-            >
-              <ListItemIcon>
-              </ListItemIcon>
-              <ListItemText primary="Contents" />
-            </ListItemButton>
+          <ListItemButton
+            selected={selected === "projects"}
+            onClick={(event) => this.handleListItemClick(event, "projects")}
+          >
+            <ListItemIcon></ListItemIcon>
+            <ListItemText primary="Project" />
+          </ListItemButton>
 
-  
-            <ListItemButton
-              selected={selected === "groups"}
-              onClick={(event) => this.handleListItemClick(event, "groups")}
-            >
-              <ListItemIcon>
-              </ListItemIcon>
-              <ListItemText primary="Group" />
-            </ListItemButton>
+        </List>
+      </Drawer>
 
-            <ListItemButton
-              selected={selected === "projects"}
-              onClick={(event) => this.handleListItemClick(event, "projects")}
-            >
-              <ListItemIcon>
-              </ListItemIcon>
-              <ListItemText primary="Project" />
-            </ListItemButton>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Toolbar />
+        <Pages />
+      </Box>
 
-          </List> 
-        </Grid>
-
-        <Grid item xs={9} className="ContentGrid"> 
-          <Pages />
-        </Grid>
-
-      </Grid>
-    </>);
+      </Box>
+    );
   }
 }
 
@@ -149,4 +139,3 @@ export function Confirm(title,msg) {
 }
 
 export default Layout;
-

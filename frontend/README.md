@@ -30,11 +30,13 @@ http://localhost:3000/
 $ npm run build
 ```
 
-Outputs to `frontend/dist` (gitignored). `npm run preview` serves that build locally.
+Outputs to `../handler/internal/_assets/spa` (gitignored except a `.gitkeep` placeholder), which the Go server `go:embed`s and serves directly — `go run main.go start` alone is enough to see the production build, no separate static server needed. Run this at least once on a fresh checkout before building the Go side, since the embed directive needs at least one file to exist there. `npm run preview` serves the same build locally via Vite instead.
 
 # Design
 
-## Material-Design(Lite)
+## Material UI (MUI)
+
+The whole app is themed through a single `createTheme()` in `src/theme.js`, applied via `ThemeProvider` + `CssBaseline` in `App.jsx`. There is no separate custom layout CSS — `pages/Layout.jsx` (AppBar + permanent Drawer) and everything else style through the theme and MUI's `sx` prop. The old MDL (Material Design Lite) based legacy pages have been removed entirely.
 
 ```
 $ npm install @mui/material @emotion/react @emotion/styled
