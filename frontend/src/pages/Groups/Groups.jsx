@@ -5,6 +5,7 @@ import Util from "../../Util.js"
 import Paging from "../Paging.js";
 
 import {
+  Box,
   Button
 } from '@mui/material';
 
@@ -27,16 +28,13 @@ class Groups extends React.Component {
     this.registerDialog = React.createRef();
 
     this.columns = [
-      { id: 'id', label: 'ID', minWidth: 20 },
       { id: 'name', label: 'Name', minWidth: 100,
-        format: (val, row) => this.contentLink(val, row) },
-      { id: 'created_at', label: 'Created At', minWidth: 80,
+        format: (val, row) => this.nameCell(val, row) },
+      { id: 'created_at', label: 'Created At', minWidth: 160, width: 160,
         format: (value) => Util.formatDate(value) },
-      { id: 'updated_at', label: 'Updated At', minWidth: 80,
+      { id: 'updated_at', label: 'Updated At', minWidth: 160, width: 160,
         format: (value) => Util.formatDate(value) },
-      { id: 'check', label: '', minWidth: 250,
-        format: (val, row) => this.createCheckButton(val, row) },
-      { id: 'delete', label: '', minWidth: 100,
+      { id: 'delete', label: '', minWidth: 100, width: 100,
         format: (val, row) => this.createDeleteButton(val, row) },
     ];
 
@@ -101,6 +99,15 @@ class Groups extends React.Component {
 
   contentLink(val, row) {
     return <a href={"/groups/contents/" + row["id"]}>{val}</a>;
+  }
+
+  nameCell(val, row) {
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {this.contentLink(val, row)}
+        {this.createCheckButton(val, row)}
+      </Box>
+    );
   }
 
   handleCheck(val) {

@@ -58,7 +58,8 @@ class FlexTable extends React.Component {
               <TableRow>
                 {columns.map((column) => (
                   <TableCell
-                    key={column.id} align={column.align} style={{ minWidth: column.minWidth }}
+                    key={column.id} align={column.align}
+                    style={{ minWidth: column.minWidth, width: column.width }}
                   >
                     {column.label}
                   </TableCell>
@@ -73,7 +74,9 @@ class FlexTable extends React.Component {
                     {columns.map((column, idx) => {
                       const value = row[column.id];
                       return (
-                        <TableCell key={column.id + "-" + idx} align={column.align}>
+                        <TableCell key={column.id + "-" + idx} align={column.align}
+                          style={{ minWidth: column.minWidth, width: column.width }}
+                        >
                           {column.format ? column.format(value, row) : value}
                         </TableCell>
                       );
