@@ -18,8 +18,8 @@ require (
 	github.com/mattn/go-runewidth v0.0.10 // indirect
 	github.com/monochromegane/goban v0.0.0-20141019070712-284a52313eb5 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	golang.org/x/net v0.23.0 // indirect
-	golang.org/x/sys v0.42.0 // indirect
+	golang.org/x/net v0.56.0 // indirect
+	golang.org/x/sys v0.46.0 // indirect
 )
 
 replace github.com/ikascrew/core => ../core
