@@ -3,7 +3,7 @@ import React from "react"
 import API from "../../API.js"
 import Paging from "../Paging.js";
 
-import {Grid,Pagination,Card,CardMedia,CardContent,Typography} from '@mui/material';
+import {Box,Pagination,Card,CardMedia,CardContent,Typography} from '@mui/material';
 
 class Contents extends React.Component {
 
@@ -57,31 +57,33 @@ class Contents extends React.Component {
 
     return (<>
 
-      <Grid container sx={{marginTop:"10px"}} justify="center">
+      <Box sx={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+        gap: 1.5,
+        marginTop: "10px",
+      }}>
 
 {data.map( (obj) => {
 
   return (
-    <Grid item container xs={12} md={4} sm={6} spacing={1} key={"content-" + obj.id}>
-      <Card sx={{ maxWidth:300, minWidth: 300 ,maxHeight:300,margin:5}}>
-        <a href={"/contents/" + obj.id}>
+    <Card key={"content-" + obj.id}>
+      <a href={"/contents/" + obj.id}>
         <CardMedia
-          sx={{ height: 200 }}
+          sx={{ height: 100 }}
           image={"/thumb/" + obj.id}
         />
-        </a>
+      </a>
 
-        <CardContent>
-          <Typography gutterBottom variant="body1" component="div" noWrap> {obj.name} </Typography>
-          <Typography variant="body2" color="text.secondary"></Typography>
-        </CardContent>
+      <CardContent sx={{ padding: 1, "&:last-child": { paddingBottom: 1 } }}>
+        <Typography variant="body2" component="div" noWrap> {obj.name} </Typography>
+      </CardContent>
 
-      </Card>
-    </Grid>
+    </Card>
   );
 })}
 
-      </Grid>
+      </Box>
       <Pagination count={pageCount} page={paging.current} onChange={this.handleChangePage} showFirstButton showLastButton />
     </>);
   }
