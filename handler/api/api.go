@@ -20,6 +20,7 @@ func init() {
 	apiMap = make(map[string]NewParameterFunc)
 	apiMap["v1/groups/view"] = newGroupView
 	apiMap["v1/groups/register"] = newGroupRegister
+	apiMap["v1/groups/rename"] = newGroupRename
 	apiMap["v1/groups/check"] = newGroupCheck
 	apiMap["v1/groups/delete"] = newGroupDelete
 	apiMap["v1/groups/contents"] = newContentView

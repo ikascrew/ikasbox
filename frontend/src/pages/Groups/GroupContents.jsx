@@ -4,7 +4,9 @@ import API from "../../API.js"
 import Paging from "../Paging.js";
 
 import {withParams} from "../Pages.jsx"
-import {TextField,Box,Pagination,Card,CardMedia,CardContent,Typography} from '@mui/material';
+import {TextField,Box,Stack,Pagination,Card,CardMedia,CardContent,Typography} from '@mui/material';
+import LoadingButton from "../../components/LoadingButton.jsx";
+import { Alert } from "../Layout.jsx";
 
 class GroupContents extends React.Component {
 
@@ -13,13 +15,11 @@ class GroupContents extends React.Component {
     this.state = {
       group : {},
       contents : [],
-      paging : Paging.create(100)
+      paging : Paging.create(100),
+      name : ""
     }
 
     this.groupId = props.params.group_id;
-
-    this.nameTxt = React.createRef();
-    this.pathTxt = React.createRef();
   }
 
   componentDidMount() {
@@ -45,7 +45,8 @@ class GroupContents extends React.Component {
       this.setState({
         group:result.group,
         contents:result.contents,
-        paging:result.paging
+        paging:result.paging,
+        name:result.group.name
       });
 
     }).catch( (err) => {
@@ -59,6 +60,27 @@ class GroupContents extends React.Component {
     this.view(paging);
   };
 
+  handleChangeName = (event) => {
+    this.setState({
+      name: event.target.value
+    });
+  };
+
+  handleSaveName = () => {
+
+    var args = {
+      groupId: Number(this.groupId),
+      name: this.state.name
+    }
+
+    return API.patch("/api/v1/groups/rename", args).then(() => {
+      this.view(this.state.paging);
+      Alert("Group", "Name updated.");
+    }).catch((err) => {
+      console.log(err);
+    });
+  };
+
   render() {
 
     var group = this.state.group;
@@ -69,21 +91,26 @@ class GroupContents extends React.Component {
 
     return (<>
 
-      <TextField
-        value={group.name}
-        autoFocus margin="dense"
-        id="name" type="text" label="Name"
-        variant="standard"
-        inputRef={this.nameTxt}
-        fullWidth
-      />
+      <Stack direction="row" spacing={2} alignItems="center">
+        <TextField
+          value={this.state.name}
+          onChange={this.handleChangeName}
+          autoFocus margin="dense"
+          id="name" type="text" label="Name"
+          variant="standard"
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+        />
+        <LoadingButton onClick={this.handleSaveName}>Save</LoadingButton>
+      </Stack>
 
       <TextField
-        value={group.path}
+        value={group.path || ""}
         margin="dense"
         id="path" type="text" label="Path"
         variant="standard"
-        inputRef={this.pathTxt}
+        InputLabelProps={{ shrink: true }}
+        InputProps={{ readOnly: true }}
         fullWidth
       />
 

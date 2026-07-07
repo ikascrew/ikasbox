@@ -78,6 +78,22 @@ func RegisterGroup(name string, path string) (int, error) {
 	return g.ID, nil
 }
 
+// RenameGroup updates a group's name only; its path and contents are
+// left untouched.
+func RenameGroup(id int, name string) error {
+
+	g, err := Group{}.Find(id)
+	if err != nil {
+		return xerrors.Errorf("group find: %w", err)
+	}
+
+	if _, arErr := g.Update(GroupParams{Name: name, UpdatedAt: time.Now()}); arErr != nil {
+		return xerrors.Errorf("group update: %w", arErr)
+	}
+
+	return nil
+}
+
 // DeleteGroup removes a group together with all of its contents and
 // their thumbnails.
 func DeleteGroup(id int) error {

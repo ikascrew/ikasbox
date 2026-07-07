@@ -119,6 +119,33 @@ func (gc *GroupCheck) Processing() (Return, error) {
 	return &ret, nil
 }
 
+type GroupRename struct {
+	GroupId int    `json:"groupId"`
+	Name    string `json:"name"`
+}
+
+type GroupRenameReturn struct {
+	Status
+}
+
+func newGroupRename() Parameter {
+	var gr GroupRename
+	return &gr
+}
+
+func (gr *GroupRename) Processing() (Return, error) {
+
+	var ret GroupRenameReturn
+
+	err := db.RenameGroup(gr.GroupId, gr.Name)
+	if err != nil {
+		return nil, xerrors.Errorf("db.RenameGroup() error: %w", err)
+	}
+
+	ret.success = true
+	return &ret, nil
+}
+
 type GroupDelete struct {
 	GroupId int `json:"groupId"`
 }
