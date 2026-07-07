@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 
 import GroupRegisterDialog from "./GroupRegisterDialog"
-import { Confirm } from "../Layout.jsx";
+import { Confirm, Alert } from "../Layout.jsx";
 import FlexTable from "../../components/FlexTable.jsx";
 
 class Groups extends React.Component {
@@ -102,9 +102,27 @@ class Groups extends React.Component {
   }
 
   handleCheck(val) {
-    console.log(val);
 
-    Confirm("Group Check", "Group Checke?").then(() => {
+    Confirm("Group Check", "Check for missing files in \"" + val.name + "\"?").then(() => {
+
+      var args = {
+        groupId: val.id
+      }
+
+      API.post("/api/v1/groups/check", args).then((res) => {
+        var result = res.data;
+        if (result.missing.length <= 0) {
+          Alert("Group Check", "All " + result.total + " content file(s) exist.");
+          return;
+        }
+
+        var lines = result.missing.map((c) => c.id + ": " + c.name + " (" + c.path + ")");
+        Alert("Group Check",
+          "Missing " + result.missing.length + "/" + result.total + " file(s):\n" + lines.join("\n"));
+
+      }).catch((err) => {
+        console.log(err);
+      });
 
     }).catch((e) => {
       console.log(e);

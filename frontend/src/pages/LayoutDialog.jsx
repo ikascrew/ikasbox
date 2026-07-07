@@ -90,7 +90,7 @@ class LayoutDialog extends React.Component {
       <Dialog open={this.state.view}>
         <DialogTitle>{this.state.title}</DialogTitle>
         <DialogContent>
-          <DialogContentText>{this.state.message}</DialogContentText>
+          <DialogContentText sx={{ whiteSpace: "pre-line" }}>{this.state.message}</DialogContentText>
         </DialogContent>
         <DialogActions>
 {this.state.type === "alert" &&

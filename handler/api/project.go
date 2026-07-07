@@ -135,7 +135,9 @@ func (pcv *ProjectContentView) Processing() (Return, error) {
 }
 
 type ProjectRegister struct {
-	Name string `json:"name"`
+	Name   string `json:"name"`
+	Width  int    `json:"width"`
+	Height int    `json:"height"`
 }
 
 type ProjectRegisterReturn struct {
@@ -151,7 +153,7 @@ func (pr *ProjectRegister) Processing() (Return, error) {
 
 	var ret ProjectRegisterReturn
 
-	err := db.RegisterProject(pr.Name)
+	err := db.RegisterProject(pr.Name, pr.Width, pr.Height)
 	if err != nil {
 		return nil, xerrors.Errorf("RegisterProject() error: %w", err)
 	}

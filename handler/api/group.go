@@ -66,6 +66,41 @@ func (gr *GroupRegister) Processing() (Return, error) {
 	return &ret, nil
 }
 
+type GroupCheck struct {
+	GroupId int `json:"groupId"`
+}
+
+type GroupCheckReturn struct {
+	Missing []*db.Content `json:"missing"`
+	Total   int           `json:"total"`
+	Status
+}
+
+func newGroupCheck() Parameter {
+	var gc GroupCheck
+	return &gc
+}
+
+func (gc *GroupCheck) Processing() (Return, error) {
+
+	var ret GroupCheckReturn
+
+	contents, err := db.SelectContent(gc.GroupId)
+	if err != nil {
+		return nil, xerrors.Errorf("db.SelectContent() error: %w", err)
+	}
+	ret.Total = len(contents)
+
+	missing, err := contentimport.CheckMissing(gc.GroupId)
+	if err != nil {
+		return nil, xerrors.Errorf("contentimport.CheckMissing() error: %w", err)
+	}
+	ret.Missing = missing
+
+	ret.success = true
+	return &ret, nil
+}
+
 type GroupImport struct {
 	GroupId int    `json:"groupId"`
 	Path    string `json:"path"`

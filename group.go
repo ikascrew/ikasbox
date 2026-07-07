@@ -3,7 +3,6 @@ package ikasbox
 import (
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"time"
 
@@ -171,15 +170,13 @@ func ChooseGroup() (int, error) {
 }
 
 func check() error {
-	//コンテンツの全件取得
-	//パスにコンテンツがあるか？
-	contents, err := getContents()
+	//コンテンツの全件取得、パスにコンテンツがあるか？
+	contents, err := db.SelectContent(-1)
 	if err != nil {
-		return xerrors.Errorf("content all: %w", err)
+		return xerrors.Errorf("select content error: %w", err)
 	}
 
-	//プログレスバーを表示
-	nothings, err := checkContent(contents)
+	nothings, err := contentimport.CheckMissing(-1)
 	if err != nil {
 		return xerrors.Errorf("check: %w", err)
 	}
@@ -201,25 +198,4 @@ func check() error {
 	}
 
 	return nil
-}
-
-func getContents() ([]*db.Content, error) {
-	contents, err := db.SelectContent(-1)
-	if err != nil {
-		return nil, xerrors.Errorf("select content error: %w", err)
-	}
-
-	return contents, nil
-}
-
-func checkContent(all []*db.Content) ([]*db.Content, error) {
-
-	nothings := make([]*db.Content, 0, len(all))
-	for _, content := range all {
-		if _, err := os.Stat(content.Path); err != nil {
-			nothings = append(nothings, content)
-		}
-	}
-
-	return nothings, nil
 }

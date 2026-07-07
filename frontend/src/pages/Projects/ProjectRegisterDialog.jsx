@@ -23,6 +23,8 @@ class ProjectRegisterDialog extends React.Component {
 
     this.commitFunc = props.onCommit;
     this.nameTxt = React.createRef();
+    this.widthTxt = React.createRef();
+    this.heightTxt = React.createRef();
   }
 
   open = () => {
@@ -40,10 +42,15 @@ class ProjectRegisterDialog extends React.Component {
   handleRegister = () => {
 
     var name = this.nameTxt.current.value;
+    var width = parseInt(this.widthTxt.current.value, 10);
+    var height = parseInt(this.heightTxt.current.value, 10);
+
     return new Promise( (resolv,reject) => {
 
       let args = {
-        name : name
+        name : name,
+        width : isNaN(width) ? 0 : width,
+        height : isNaN(height) ? 0 : height
       }
 
       API.patch("/api/v1/projects/register",args).then( (res) => {
@@ -72,6 +79,24 @@ class ProjectRegisterDialog extends React.Component {
             id="name" type="text" label="Name"
             variant="standard"
             inputRef={this.nameTxt}
+            fullWidth
+          />
+
+          <TextField
+            margin="dense"
+            id="width" type="number" label="Width"
+            variant="standard"
+            inputRef={this.widthTxt}
+            defaultValue={1280}
+            fullWidth
+          />
+
+          <TextField
+            margin="dense"
+            id="height" type="number" label="Height"
+            variant="standard"
+            inputRef={this.heightTxt}
+            defaultValue={720}
             fullWidth
           />
 

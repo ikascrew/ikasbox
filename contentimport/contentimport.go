@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"image/jpeg"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -163,6 +164,25 @@ func RegisterFile(id int, f string) error {
 	}
 
 	return nil
+}
+
+// CheckMissing returns the contents whose file no longer exists on disk.
+// Pass groupId of -1 to check every content across all groups.
+func CheckMissing(groupId int) ([]*db.Content, error) {
+
+	contents, err := db.SelectContent(groupId)
+	if err != nil {
+		return nil, xerrors.Errorf("select content: %w", err)
+	}
+
+	missing := make([]*db.Content, 0, len(contents))
+	for _, c := range contents {
+		if _, err := os.Stat(c.Path); err != nil {
+			missing = append(missing, c)
+		}
+	}
+
+	return missing, nil
 }
 
 func isImage(f string) bool {

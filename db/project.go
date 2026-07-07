@@ -65,13 +65,20 @@ func SelectProjectList() ([]*Project, error) {
 	return projects, nil
 }
 
-func RegisterProject(name string) error {
+func RegisterProject(name string, width int, height int) error {
+
+	if width <= 0 {
+		width = 1280
+	}
+	if height <= 0 {
+		height = 720
+	}
 
 	now := time.Now()
 	p := Project{
 		Name:      name,
-		Width:     1280,
-		Height:    720,
+		Width:     width,
+		Height:    height,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}

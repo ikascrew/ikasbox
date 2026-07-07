@@ -54,6 +54,7 @@ class ContentView extends React.Component {
         width={width}
         height={height}
         controls
+        muted
       />
 
       <Table>
