@@ -60,7 +60,7 @@ class ProjectGroups extends React.Component {
 
       this.setState({
         groups : groups,
-        name : result.project.name
+        name : result.project ? result.project.name : ""
       });
 
       this.table.current.set(result.groups);

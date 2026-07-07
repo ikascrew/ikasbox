@@ -56,6 +56,12 @@ func (pv *ProjectGroupView) Processing() (Return, error) {
 	var ret ProjectGroupViewReturn
 	id := pv.ProjectId
 
+	project, err := db.SelectProject(id)
+	if err != nil {
+		return nil, xerrors.Errorf("db.SelectProject() error: %w", err)
+	}
+	ret.Project = project
+
 	groups, err := db.SelectProjectGroupList(id)
 	if err != nil {
 		return nil, xerrors.Errorf("select paging group: %w", err)
