@@ -23,6 +23,7 @@ func (m *Content) newRelation() *ContentRelation {
 		"name",
 		"type",
 		"path",
+		"params",
 		"width",
 		"height",
 		"fps",
@@ -175,6 +176,7 @@ func (m Content) Build(p ContentParams) *Content {
 		Name:      p.Name,
 		Type:      p.Type,
 		Path:      p.Path,
+		Params:    p.Params,
 		Width:     p.Width,
 		Height:    p.Height,
 		FPS:       p.FPS,
@@ -212,6 +214,7 @@ func (m *Content) Save(validate ...bool) (bool, *ar.Errors) {
 			"name":       m.Name,
 			"type":       m.Type,
 			"path":       m.Path,
+			"params":     m.Params,
 			"width":      m.Width,
 			"height":     m.Height,
 			"fps":        m.FPS,
@@ -237,6 +240,7 @@ func (m *Content) Save(validate ...bool) (bool, *ar.Errors) {
 			"name":       m.Name,
 			"type":       m.Type,
 			"path":       m.Path,
+			"params":     m.Params,
 			"width":      m.Width,
 			"height":     m.Height,
 			"fps":        m.FPS,
@@ -270,6 +274,9 @@ func (m *Content) Update(p ContentParams) (bool, *ar.Errors) {
 	}
 	if !ar.IsZero(p.Path) {
 		m.Path = p.Path
+	}
+	if !ar.IsZero(p.Params) {
+		m.Params = p.Params
 	}
 	if !ar.IsZero(p.Width) {
 		m.Width = p.Width
@@ -311,6 +318,9 @@ func (m *Content) UpdateColumns(p ContentParams) (bool, *ar.Errors) {
 	}
 	if !ar.IsZero(p.Path) {
 		m.Path = p.Path
+	}
+	if !ar.IsZero(p.Params) {
+		m.Params = p.Params
 	}
 	if !ar.IsZero(p.Width) {
 		m.Width = p.Width
@@ -414,6 +424,8 @@ func (m *Content) fieldValueByName(name string) interface{} {
 		return m.Type
 	case "path", "contents.path":
 		return m.Path
+	case "params", "contents.params":
+		return m.Params
 	case "width", "contents.width":
 		return m.Width
 	case "height", "contents.height":
@@ -445,6 +457,8 @@ func (m *Content) fieldPtrByName(name string) interface{} {
 		return &m.Type
 	case "path", "contents.path":
 		return &m.Path
+	case "params", "contents.params":
+		return &m.Params
 	case "width", "contents.width":
 		return &m.Width
 	case "height", "contents.height":
@@ -489,6 +503,7 @@ func (m *Content) columnNames() []string {
 		"name",
 		"type",
 		"path",
+		"params",
 		"width",
 		"height",
 		"fps",

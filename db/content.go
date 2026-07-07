@@ -15,6 +15,7 @@ CREATE TABLE [CONTENTS] (
     [name] VARCHAR(128) NOT NULL,
     [type] VARCHAR(32),
     [path] VARCHAR(1024),
+    [params] TEXT,
     [width] INTEGER,
     [height] INTEGER,
     [fps] REAL,
@@ -33,6 +34,7 @@ type Content struct {
 	Name      string    `json:"name"`
 	Type      string    `json:"type"`
 	Path      string    `json:"path"`
+	Params    string    `json:"params"`
 	Width     int       `json:"width"`
 	Height    int       `json:"height"`
 	FPS       float64   `json:"fps"`

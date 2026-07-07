@@ -16,10 +16,14 @@ import (
 
 	"github.com/ikascrew/core/util"
 	"github.com/ikascrew/ikasbox/db"
+	"github.com/ikascrew/plugin/video"
 
 	"gocv.io/x/gocv"
 	"golang.org/x/xerrors"
 )
+
+// サムネイルの枚数(seq 0 は中間フレーム、1..16 がタイムライン)
+const thumbnailNum = 17
 
 // SearchFiles finds and sorts the files under path matching extensions.
 func SearchFiles(path string, extensions []string) ([]string, error) {
@@ -73,20 +77,20 @@ func ImportDirectory(groupId int, path string, extensions []string) (int, error)
 // saves it as a content of the given group.
 func RegisterFile(id int, f string) error {
 
-	//TODO FileかImageかを拡張子でやっていると思うのでだめ
 	v, err := util.NewVideo(f)
 	if err != nil {
 		return xerrors.Errorf("load video[%s]: %w", f, err)
 	}
 	defer v.Close()
 
+	// 型は plugin の正語彙(file/img)で保存する
 	typ := "file"
 	if isImage(f) {
-		typ = "image"
+		typ = "img"
 	}
 
 	frames := float64(v.Frames)
-	images := make([]*gocv.Mat, 17)
+	images := make([]*gocv.Mat, thumbnailNum)
 	//半分の位置を取得
 	m, err := v.GetImage(frames / 2.0)
 	if err != nil {
@@ -102,23 +106,105 @@ func RegisterFile(id int, f string) error {
 		images[idx+1] = i
 	}
 
-	err = db.Transaction(func(tx *sql.Tx) error {
+	now := time.Now()
+	c := db.Content{
+		GroupId:   id,
+		Name:      filepath.Base(f),
+		Path:      f,
+		Type:      typ,
+		Width:     v.Width,
+		Height:    v.Height,
+		FPS:       v.FPS,
+		Fourcc:    v.FOURCC,
+		Frames:    v.Frames,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
 
-		now := time.Now()
-		//コンテンツを登録
-		c := db.Content{
-			GroupId:   id,
-			Name:      filepath.Base(f),
-			Path:      f,
-			Type:      typ,
-			Width:     v.Width,
-			Height:    v.Height,
-			FPS:       v.FPS,
-			Fourcc:    v.FOURCC,
-			Frames:    v.Frames,
-			CreatedAt: now,
-			UpdatedAt: now,
+	err = saveContentWithThumbnails(&c, images)
+
+	// 画像は全 seq が同じ Mat を指すので1回だけ閉じる
+	if isImage(f) {
+		m.Close()
+	} else {
+		for _, img := range images {
+			img.Close()
 		}
+	}
+
+	if err != nil {
+		return xerrors.Errorf("register content: %w", err)
+	}
+
+	return nil
+}
+
+// RegisterGenerated は実体ファイルを持たない生成型コンテンツ
+// (cd, terminal など)を登録する。params は JSON 文字列で、
+// 妥当性はプラグインを実際に生成して検証し、サムネイルも
+// プラグインにフレームを描画させて作る
+func RegisterGenerated(groupId int, name, typ, params string) (*db.Content, error) {
+
+	if _, err := db.FindGroup(groupId); err != nil {
+		return nil, xerrors.Errorf("find group[%d]: %w", groupId, err)
+	}
+
+	t := video.Normalize(typ)
+
+	// params の検証を登録時に前倒しする(壊れた JSON を本番まで持ち込まない)
+	v, err := video.Get(t, params)
+	if err != nil {
+		return nil, xerrors.Errorf("video create[%s]: %w", t, err)
+	}
+	defer v.Release()
+
+	images := make([]*gocv.Mat, thumbnailNum)
+	for idx := range images {
+		m, err := v.Next()
+		if err != nil {
+			return nil, xerrors.Errorf("render frame(%d): %w", idx, err)
+		}
+		// Next は内部バッファを返すプラグインがあるため複製する
+		clone := m.Clone()
+		images[idx] = &clone
+	}
+	defer func() {
+		for _, img := range images {
+			img.Close()
+		}
+	}()
+
+	if images[0].Empty() {
+		return nil, xerrors.New("rendered frame is empty")
+	}
+
+	now := time.Now()
+	c := db.Content{
+		GroupId:   groupId,
+		Name:      name,
+		Path:      "",
+		Type:      t,
+		Params:    params,
+		Width:     images[0].Cols(),
+		Height:    images[0].Rows(),
+		FPS:       30,
+		Frames:    0,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+
+	if err := saveContentWithThumbnails(&c, images); err != nil {
+		return nil, xerrors.Errorf("register content: %w", err)
+	}
+
+	return &c, nil
+}
+
+// saveContentWithThumbnails はコンテンツとサムネイル一式を
+// 1トランザクションで保存する。Mat のクローズは呼び出し側の責務
+func saveContentWithThumbnails(c *db.Content, images []*gocv.Mat) error {
+
+	return db.Transaction(func(tx *sql.Tx) error {
 
 		_, arErr := c.Save()
 		if arErr != nil {
@@ -147,23 +233,10 @@ func RegisterFile(id int, f string) error {
 			if err != nil {
 				return xerrors.Errorf("thumbnail insert: %w", err)
 			}
-
-			if !isImage(f) {
-				img.Close()
-			}
 		}
 
-		if isImage(f) {
-			m.Close()
-		}
 		return nil
 	})
-
-	if err != nil {
-		return xerrors.Errorf("register content: %w", err)
-	}
-
-	return nil
 }
 
 // CheckMissing returns the contents whose file no longer exists on disk.

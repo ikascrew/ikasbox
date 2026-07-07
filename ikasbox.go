@@ -27,12 +27,14 @@ func Start(opts ...config.Option) error {
 		err = start()
 	case "group":
 		err = setGroup()
+	case "content":
+		err = setContent()
 	case "project":
 		err = setProject()
 	case "init":
 		err = create()
 	default:
-		err = fmt.Errorf("subcommand not found[%s].sub command is [start group project init]", conf.SubCommand)
+		err = fmt.Errorf("subcommand not found[%s].sub command is [start group content project init]", conf.SubCommand)
 	}
 
 	if err != nil {

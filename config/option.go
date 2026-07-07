@@ -61,7 +61,7 @@ func Extension(exts string) Option {
 
 func checkSubCommand(sub string) bool {
 	if sub == "start" || sub == "project" ||
-		sub == "group" || sub == "init" {
+		sub == "group" || sub == "content" || sub == "init" {
 		return true
 	}
 	return false

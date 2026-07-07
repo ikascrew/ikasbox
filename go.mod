@@ -4,6 +4,7 @@ go 1.25.0
 
 require (
 	github.com/ikascrew/core v0.0.0-20210324041206-fb346c8e5c80
+	github.com/ikascrew/plugin v0.0.0-20200715234203-87c9c5b19416
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/monochromegane/argen v0.0.0-20150711140148-c37112f9dc50
 	gocv.io/x/gocv v0.38.0
@@ -22,3 +23,5 @@ require (
 )
 
 replace github.com/ikascrew/core => ../core
+
+replace github.com/ikascrew/plugin => ../plugin
