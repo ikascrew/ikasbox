@@ -35,10 +35,12 @@ func Open() error {
 // 冪等になるよう、列の存在を確認してから ALTER TABLE する
 func migrate() error {
 
-	// init 前(contents 自体が無い)は何もしない
+	// init 前(contents 自体が無い)は何もしない。
+	// テーブルは CREATE TABLE [CONTENTS] と大文字で作られているため
+	// 大文字小文字を無視して比較する
 	var name string
 	err := db.QueryRow(
-		`SELECT name FROM sqlite_master WHERE type='table' AND name='contents'`).Scan(&name)
+		`SELECT name FROM sqlite_master WHERE type='table' AND lower(name)='contents'`).Scan(&name)
 	if err != nil {
 		return nil
 	}
@@ -68,10 +70,17 @@ func migrate() error {
 	}
 
 	if !has {
-		if _, err := db.Exec(`ALTER TABLE contents ADD COLUMN params TEXT`); err != nil {
+		// NULL のままだと argen 生成コードの Scan(string) が失敗するため
+		// 既存行にも空文字が入るよう NOT NULL DEFAULT '' で追加する
+		if _, err := db.Exec(`ALTER TABLE contents ADD COLUMN params TEXT NOT NULL DEFAULT ''`); err != nil {
 			return xerrors.Errorf("add column params: %w", err)
 		}
 		fmt.Println("migrate: add column contents.params")
+	}
+
+	// 過去の不完全なマイグレーション(DEFAULT なし)で NULL になった行の補修
+	if _, err := db.Exec(`UPDATE contents SET params = '' WHERE params IS NULL`); err != nil {
+		return xerrors.Errorf("repair null params: %w", err)
 	}
 	return nil
 }

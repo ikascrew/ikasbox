@@ -15,7 +15,7 @@ CREATE TABLE [CONTENTS] (
     [name] VARCHAR(128) NOT NULL,
     [type] VARCHAR(32),
     [path] VARCHAR(1024),
-    [params] TEXT,
+    [params] TEXT NOT NULL DEFAULT '',
     [width] INTEGER,
     [height] INTEGER,
     [fps] REAL,
