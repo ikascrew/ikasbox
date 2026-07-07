@@ -11,7 +11,9 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 
-import Pages from "./Pages.jsx";
+import { Link as RouterLink } from "react-router";
+
+import Pages, { withLocation } from "./Pages.jsx";
 
 import Dialog from "./LayoutDialog.jsx";
 
@@ -29,17 +31,13 @@ class Layout extends React.Component {
     this.showDialog = this.showDialog.bind(this);
   }
 
-  handleListItemClick(e,name) {
-    location.href="/" + name;
-  }
-
   getLocation() {
-    var url = location.href;
-    if ( url.indexOf("/groups") !== -1 ) {
+    var path = this.props.location.pathname;
+    if ( path.indexOf("/groups") === 0 ) {
       return "groups";
-    } else if ( url.indexOf("/projects") !== -1 ) {
+    } else if ( path.indexOf("/projects") === 0 ) {
       return "projects";
-    } else if ( url.indexOf("/contents") !== -1 ) {
+    } else if ( path.indexOf("/contents") === 0 ) {
       return "contents";
     }
     return "index";
@@ -59,7 +57,7 @@ class Layout extends React.Component {
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <Box component="a" href="/" sx={{ color: 'inherit', textDecoration: 'none' }}>ikasbox</Box>
+            <Box component={RouterLink} to="/" sx={{ color: 'inherit', textDecoration: 'none' }}>ikasbox</Box>
           </Typography>
         </Toolbar>
       </AppBar>
@@ -78,40 +76,40 @@ class Layout extends React.Component {
         <List component="nav">
 
           <ListItemButton
+            component={RouterLink} to="/category"
             selected={selected === "category"}
-            onClick={(event) => this.handleListItemClick(event, "category")}
           >
             <ListItemIcon></ListItemIcon>
             <ListItemText primary="Category" />
           </ListItemButton>
 
           <ListItemButton
+            component={RouterLink} to="/tags"
             selected={selected === "tags"}
-            onClick={(event) => this.handleListItemClick(event, "tags")}
           >
             <ListItemIcon></ListItemIcon>
             <ListItemText primary="Tag" />
           </ListItemButton>
 
           <ListItemButton
+            component={RouterLink} to="/contents"
             selected={selected === "contents"}
-            onClick={(event) => this.handleListItemClick(event, "contents")}
           >
             <ListItemIcon></ListItemIcon>
             <ListItemText primary="Contents" />
           </ListItemButton>
 
           <ListItemButton
+            component={RouterLink} to="/groups"
             selected={selected === "groups"}
-            onClick={(event) => this.handleListItemClick(event, "groups")}
           >
             <ListItemIcon></ListItemIcon>
             <ListItemText primary="Group" />
           </ListItemButton>
 
           <ListItemButton
+            component={RouterLink} to="/projects"
             selected={selected === "projects"}
-            onClick={(event) => this.handleListItemClick(event, "projects")}
           >
             <ListItemIcon></ListItemIcon>
             <ListItemText primary="Project" />
@@ -138,4 +136,4 @@ export function Confirm(title,msg) {
   return inst.showDialog(title,msg,"confirm");
 }
 
-export default Layout;
+export default withLocation(Layout);

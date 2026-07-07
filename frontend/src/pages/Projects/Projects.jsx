@@ -12,6 +12,7 @@ import FlexTable from "../../components/FlexTable";
 import NameLink from "../../components/NameLink.jsx";
 import ProjectRegisterDialog from "./ProjectRegisterDialog";
 import { Confirm } from "../Layout.jsx";
+import { Link as RouterLink } from "react-router";
 
 class Projects extends React.Component {
   
@@ -67,13 +68,9 @@ class Projects extends React.Component {
     return <NameLink href={"/projects/group/" + row["id"]}>{val}</NameLink>;
   }
 
-  handleOpenContents(row) {
-    location.href = "/projects/contents/" + row["id"];
-  }
-
   createContentsButton(row) {
     return (
-      <Button variant="contained" onClick={() => this.handleOpenContents(row)}>
+      <Button variant="contained" component={RouterLink} to={"/projects/contents/" + row["id"]}>
         Contents
       </Button>
     );

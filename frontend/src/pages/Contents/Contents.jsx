@@ -4,6 +4,7 @@ import API from "../../API.js"
 import Paging from "../Paging.js";
 
 import {Box,Pagination,Card,CardMedia,CardContent,Typography} from '@mui/material';
+import { Link as RouterLink } from "react-router";
 
 class Contents extends React.Component {
 
@@ -68,12 +69,12 @@ class Contents extends React.Component {
 
   return (
     <Card key={"content-" + obj.id}>
-      <a href={"/contents/" + obj.id}>
+      <RouterLink to={"/contents/" + obj.id}>
         <CardMedia
           sx={{ height: 100 }}
           image={"/thumb/" + obj.id}
         />
-      </a>
+      </RouterLink>
 
       <CardContent sx={{ padding: 1, "&:last-child": { paddingBottom: 1 } }}>
         <Typography variant="body2" component="div" noWrap> {obj.name} </Typography>

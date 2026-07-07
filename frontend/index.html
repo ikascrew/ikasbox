@@ -5,6 +5,12 @@
     <title>ikasbox</title>
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <style>
+      /* Matches theme.js's dark palette.background.default so a hard
+         navigation/reload never flashes the browser's default white
+         background before React mounts and CssBaseline takes over. */
+      html, body { background-color: #121212; }
+    </style>
   </head>
   <body>
     <div id="app"></div>

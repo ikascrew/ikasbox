@@ -7,6 +7,7 @@ import {withParams} from "../Pages.jsx"
 import {TextField,Box,Stack,Pagination,Card,CardMedia,CardContent,Typography} from '@mui/material';
 import LoadingButton from "../../components/LoadingButton.jsx";
 import { Alert } from "../Layout.jsx";
+import { Link as RouterLink } from "react-router";
 
 class GroupContents extends React.Component {
 
@@ -125,12 +126,12 @@ class GroupContents extends React.Component {
 
   return (
     <Card key={"content-" + obj.id}>
-      <a href={"/contents/" + obj.id}>
+      <RouterLink to={"/contents/" + obj.id}>
         <CardMedia
           sx={{ height: 100 }}
           image={"/thumb/" + obj.id}
         />
-      </a>
+      </RouterLink>
 
       <CardContent sx={{ padding: 1, "&:last-child": { paddingBottom: 1 } }}>
         <Typography variant="body2" component="div" noWrap> {obj.name} </Typography>

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useParams,Routes,Route } from "react-router";
+import { useParams,useLocation,Routes,Route } from "react-router";
 import Index from "./Index.jsx"
 import Groups from "./Groups/Groups.jsx"
 import Contents from "./Contents/Contents.jsx"
@@ -29,6 +29,10 @@ class Pages extends React.Component {
 
 export function withParams(Component) {
   return props => <Component {...props} params={useParams()} />;
+}
+
+export function withLocation(Component) {
+  return props => <Component {...props} location={useLocation()} />;
 }
 
 export default Pages;
