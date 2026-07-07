@@ -185,6 +185,31 @@ func CheckMissing(groupId int) ([]*db.Content, error) {
 	return missing, nil
 }
 
+// CheckDuplicates returns groups of contents that share the same file path,
+// i.e. the same file registered more than once. Each returned slice has 2 or
+// more entries. Pass groupId of -1 to check every content across all groups.
+func CheckDuplicates(groupId int) ([][]*db.Content, error) {
+
+	contents, err := db.SelectContent(groupId)
+	if err != nil {
+		return nil, xerrors.Errorf("select content: %w", err)
+	}
+
+	byPath := make(map[string][]*db.Content)
+	for _, c := range contents {
+		byPath[c.Path] = append(byPath[c.Path], c)
+	}
+
+	duplicates := make([][]*db.Content, 0)
+	for _, group := range byPath {
+		if len(group) > 1 {
+			duplicates = append(duplicates, group)
+		}
+	}
+
+	return duplicates, nil
+}
+
 func isImage(f string) bool {
 	if strings.Index(f, ".jpg") != -1 ||
 		strings.Index(f, ".jpeg") != -1 ||

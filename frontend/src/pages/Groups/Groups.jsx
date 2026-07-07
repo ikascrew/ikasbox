@@ -120,14 +120,28 @@ class Groups extends React.Component {
 
       API.post("/api/v1/groups/check", args).then((res) => {
         var result = res.data;
-        if (result.missing.length <= 0) {
-          Alert("Group Check", "All " + result.total + " content file(s) exist.");
+
+        if (result.missing.length <= 0 && result.duplicates.length <= 0) {
+          Alert("Group Check", "All " + result.total + " content file(s) exist, no duplicates found.");
           return;
         }
 
-        var lines = result.missing.map((c) => c.id + ": " + c.name + " (" + c.path + ")");
-        Alert("Group Check",
-          "Missing " + result.missing.length + "/" + result.total + " file(s):\n" + lines.join("\n"));
+        var messages = [];
+
+        if (result.missing.length > 0) {
+          var missingLines = result.missing.map((c) => c.id + ": " + c.name + " (" + c.path + ")");
+          messages.push("Missing " + result.missing.length + "/" + result.total + " file(s):\n" + missingLines.join("\n"));
+        }
+
+        if (result.duplicates.length > 0) {
+          var duplicateLines = result.duplicates.map((group) => {
+            var ids = group.map((c) => c.id + ": " + c.name).join(", ");
+            return group[0].path + " -> " + ids;
+          });
+          messages.push("Duplicate file(s) in " + result.duplicates.length + " path(s):\n" + duplicateLines.join("\n"));
+        }
+
+        Alert("Group Check", messages.join("\n\n"));
 
       }).catch((err) => {
         console.log(err);

@@ -89,8 +89,9 @@ type GroupCheck struct {
 }
 
 type GroupCheckReturn struct {
-	Missing []*db.Content `json:"missing"`
-	Total   int           `json:"total"`
+	Missing    []*db.Content   `json:"missing"`
+	Duplicates [][]*db.Content `json:"duplicates"`
+	Total      int             `json:"total"`
 	Status
 }
 
@@ -114,6 +115,12 @@ func (gc *GroupCheck) Processing() (Return, error) {
 		return nil, xerrors.Errorf("contentimport.CheckMissing() error: %w", err)
 	}
 	ret.Missing = missing
+
+	duplicates, err := contentimport.CheckDuplicates(gc.GroupId)
+	if err != nil {
+		return nil, xerrors.Errorf("contentimport.CheckDuplicates() error: %w", err)
+	}
+	ret.Duplicates = duplicates
 
 	ret.success = true
 	return &ret, nil
