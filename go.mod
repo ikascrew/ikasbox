@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/ikascrew/core v0.0.0-20210324041206-fb346c8e5c80
-	github.com/mattn/go-sqlite3 v2.0.3+incompatible
+	github.com/mattn/go-sqlite3 v1.14.47
 	github.com/monochromegane/argen v0.0.0-20150711140148-c37112f9dc50
 	gocv.io/x/gocv v0.38.0
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
