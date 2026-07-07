@@ -22,7 +22,7 @@ class Projects extends React.Component {
     }
 
     this.columns = [
-      { id: 'id', label: 'ID', minWidth: 20 },
+      { id: 'id', label: 'ID', minWidth: 80, width: 80, align: 'center' },
       { id: 'name', label: 'Name', minWidth: 100,
         format: (val, row) => this.contentLink(val, row) },
       { id: 'created_at', label: 'Created At', minWidth: 80,
