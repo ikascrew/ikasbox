@@ -12,6 +12,7 @@ import {
 import GroupRegisterDialog from "./GroupRegisterDialog"
 import { Confirm, Alert } from "../Layout.jsx";
 import FlexTable from "../../components/FlexTable.jsx";
+import NameLink from "../../components/NameLink.jsx";
 
 class Groups extends React.Component {
 
@@ -98,7 +99,7 @@ class Groups extends React.Component {
 
 
   contentLink(val, row) {
-    return <a href={"/groups/contents/" + row["id"]}>{val}</a>;
+    return <NameLink href={"/groups/contents/" + row["id"]}>{val}</NameLink>;
   }
 
   nameCell(val, row) {

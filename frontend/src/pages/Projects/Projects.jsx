@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 
 import FlexTable from "../../components/FlexTable";
+import NameLink from "../../components/NameLink.jsx";
 import ProjectRegisterDialog from "./ProjectRegisterDialog";
 import { Confirm } from "../Layout.jsx";
 
@@ -63,7 +64,7 @@ class Projects extends React.Component {
   }
 
   contentLink(val, row) {
-    return <a href={"/projects/group/" + row["id"]}>{val}</a>;
+    return <NameLink href={"/projects/group/" + row["id"]}>{val}</NameLink>;
   }
 
   handleOpenContents(row) {
