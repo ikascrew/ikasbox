@@ -167,9 +167,9 @@ func TestGroupCheck(t *testing.T) {
 	}
 
 	var res struct {
-		Missing    []struct{ ID int } `json:"missing"`
+		Missing    []struct{ ID int }   `json:"missing"`
 		Duplicates [][]struct{ ID int } `json:"duplicates"`
-		Total      int                `json:"total"`
+		Total      int                  `json:"total"`
 	}
 	if err := json.Unmarshal(w.Body.Bytes(), &res); err != nil {
 		t.Fatalf("response is not json: %+v", err)

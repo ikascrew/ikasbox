@@ -4,8 +4,9 @@ import API from "../../API.js"
 import Paging from "../Paging.js";
 
 import {withParams} from "../Pages.jsx"
-import {TextField,Box,Stack,Pagination,Card,CardMedia,CardContent,Typography} from '@mui/material';
+import {TextField,Box,Stack,Pagination,Card,CardMedia,CardContent,Typography,Button} from '@mui/material';
 import LoadingButton from "../../components/LoadingButton.jsx";
+import ContentRegisterDialog from "./ContentRegisterDialog.jsx";
 import { Alert } from "../Layout.jsx";
 import { Link as RouterLink } from "react-router";
 
@@ -21,7 +22,12 @@ class GroupContents extends React.Component {
     }
 
     this.groupId = props.params.group_id;
+    this.registerDialog = React.createRef();
   }
+
+  handleOpenRegister = () => {
+    this.registerDialog.current.open();
+  };
 
   componentDidMount() {
     var paging = this.state.paging;
@@ -114,6 +120,18 @@ class GroupContents extends React.Component {
         InputProps={{ readOnly: true }}
         fullWidth
       />
+
+      <Stack direction="row" justifyContent="flex-end" sx={{ marginTop: 1 }}>
+        <ContentRegisterDialog
+          ref={this.registerDialog}
+          groupId={this.groupId}
+          onCommit={() => {
+            this.view(this.state.paging);
+            Alert("Content", "Registered.");
+          }}
+        />
+        <Button variant="contained" onClick={this.handleOpenRegister}>Add Content</Button>
+      </Stack>
 
       <Box sx={{
         display: "grid",

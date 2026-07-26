@@ -26,6 +26,8 @@ func init() {
 	apiMap["v1/groups/contents"] = newContentView
 
 	apiMap["v1/contents/view"] = newContentFind
+	apiMap["v1/contents/spec"] = newContentSpec
+	apiMap["v1/contents/register"] = newContentRegister
 
 	apiMap["v1/projects/view"] = newProjectView
 	apiMap["v1/projects/group"] = newProjectGroupView
@@ -61,7 +63,7 @@ func Register(path string) error {
 	return nil
 }
 
-//Bodyからデータを抜き出す
+// Bodyからデータを抜き出す
 func (h *Handle) bind(r *http.Request, p Parameter) error {
 
 	b, err := io.ReadAll(r.Body)
@@ -168,7 +170,7 @@ type Return interface {
 	IsSuccess() bool
 }
 
-//エラー時はHTTPステータス + {"error": "..."} を返し、フロント側(axios)で検知できるようにする
+// エラー時はHTTPステータス + {"error": "..."} を返し、フロント側(axios)で検知できるようにする
 func writeErrorJSON(w http.ResponseWriter, code int, err error) {
 
 	log.Printf("api error: %+v", err)
