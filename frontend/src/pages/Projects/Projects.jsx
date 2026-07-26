@@ -11,7 +11,7 @@ import {
 import FlexTable from "../../components/FlexTable";
 import NameLink from "../../components/NameLink.jsx";
 import ProjectRegisterDialog from "./ProjectRegisterDialog";
-import { Confirm } from "../Layout.jsx";
+import { Alert, Confirm } from "../Layout.jsx";
 import { Link as RouterLink } from "react-router";
 
 class Projects extends React.Component {
@@ -21,7 +21,11 @@ class Projects extends React.Component {
 
     this.state = {
       data : [],
-      paging : Paging.create()
+      paging : Paging.create(),
+      // ika-server -ikasbox 同居モード(v1/server/status が生えている)
+      // のときだけ Server ボタン列を表示する
+      serverMode : false,
+      serverProjectId : 0
     }
 
     this.columns = [
@@ -32,6 +36,8 @@ class Projects extends React.Component {
         format: (value) => Util.formatDate(value) },
       { id: 'updated_at', label: 'Updated At', minWidth: 190, width: 190, align: 'center',
         format: (value) => Util.formatDate(value) },
+      { id: 'server', label: '', minWidth: 100, width: 100,
+        format: (val, row) => this.createServerButton(val, row) },
       { id: 'delete', label: '', minWidth: 100, width: 100,
         format: (val, row) => this.createDeleteButton(val, row) },
     ];
@@ -46,6 +52,14 @@ class Projects extends React.Component {
     //プロジェクトの一覧を取得
     var paging = this.state.paging;
     this.view(paging);
+
+    //同居 server の存在確認(単体起動の ikasbox では 404 になり非表示のまま)
+    API.post("/api/v1/server/status").then((res) => {
+      this.setState({
+        serverMode: true,
+        serverProjectId: res.data.projectId
+      });
+    }).catch(() => {});
   }
 
   view(paging) {
@@ -108,6 +122,41 @@ class Projects extends React.Component {
     return (
       <Button color="error" variant="contained" onClick={() => this.handleDelete(row)}>
         Delete
+      </Button>
+    );
+  }
+
+  //同居 server の work file をこのプロジェクトで作成する。
+  //現在 server に読み込まれているプロジェクトは緑(success)で示す
+  handleServerCreate(row) {
+
+    Confirm("Server Create", "Create the server work file for \"" + row.name + "\"?\n" +
+      "The running server will switch to this project's contents. " +
+      "Run \"ika-client create " + row.id + "\" afterwards to keep the client in sync.").then(() => {
+
+      var args = {
+        projectId: row.id
+      }
+
+      API.post("/api/v1/server/create", args).then(() => {
+        this.setState({ serverProjectId: row.id });
+        Alert("Server Create", "Created and reloaded (project " + row.id + ").");
+      }).catch((err) => {
+        Alert("Server Create", err.message);
+      });
+
+    }).catch(() => {});
+  }
+
+  createServerButton(val, row) {
+    if (!this.state.serverMode) {
+      return null;
+    }
+    var active = row.id === this.state.serverProjectId;
+    return (
+      <Button color={active ? "success" : "primary"} variant="contained"
+        onClick={() => this.handleServerCreate(row)}>
+        Server
       </Button>
     );
   }

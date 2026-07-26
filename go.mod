@@ -7,7 +7,6 @@ require (
 	github.com/ikascrew/plugin v0.0.0-20200715234203-87c9c5b19416
 	github.com/mattn/go-sqlite3 v1.14.47
 	github.com/monochromegane/argen v0.0.0-20150711140148-c37112f9dc50
-	gocv.io/x/gocv v0.43.0
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 )
@@ -18,6 +17,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.10 // indirect
 	github.com/monochromegane/goban v0.0.0-20141019070712-284a52313eb5 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
+	gocv.io/x/gocv v0.43.0 // indirect
 	golang.org/x/net v0.56.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
 )

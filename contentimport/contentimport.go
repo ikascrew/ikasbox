@@ -7,6 +7,7 @@ package contentimport
 import (
 	"bytes"
 	"database/sql"
+	"image"
 	"image/jpeg"
 	"log"
 	"os"
@@ -18,7 +19,6 @@ import (
 	"github.com/ikascrew/ikasbox/db"
 	"github.com/ikascrew/plugin/video"
 
-	"gocv.io/x/gocv"
 	"golang.org/x/xerrors"
 )
 
@@ -90,20 +90,33 @@ func RegisterFile(id int, f string) error {
 	}
 
 	frames := float64(v.Frames)
-	images := make([]*gocv.Mat, thumbnailNum)
-	//半分の位置を取得
-	m, err := v.GetImage(frames / 2.0)
-	if err != nil {
-		return xerrors.Errorf("get image(root): %w", err)
-	}
+	images := make([]image.Image, thumbnailNum)
 
-	images[0] = m
-	for idx := 0; idx <= 15; idx++ {
-		i, err := v.GetImage(frames/16.0*float64(idx) + 1)
+	if isImage(f) {
+		// 静止画は位置によらず同一フレームなので1回だけ変換して共有する
+		// (image.Image は不変なので Mat と違い共有しても安全)
+		m, err := v.GetGoImage(0)
 		if err != nil {
-			return xerrors.Errorf("get image(%d): %w", idx, err)
+			return xerrors.Errorf("get image: %w", err)
 		}
-		images[idx+1] = i
+		for idx := range images {
+			images[idx] = m
+		}
+	} else {
+		//半分の位置を取得
+		m, err := v.GetGoImage(frames / 2.0)
+		if err != nil {
+			return xerrors.Errorf("get image(root): %w", err)
+		}
+
+		images[0] = m
+		for idx := 0; idx <= 15; idx++ {
+			i, err := v.GetGoImage(frames/16.0*float64(idx) + 1)
+			if err != nil {
+				return xerrors.Errorf("get image(%d): %w", idx, err)
+			}
+			images[idx+1] = i
+		}
 	}
 
 	now := time.Now()
@@ -121,18 +134,7 @@ func RegisterFile(id int, f string) error {
 		UpdatedAt: now,
 	}
 
-	err = saveContentWithThumbnails(&c, images)
-
-	// 画像は全 seq が同じ Mat を指すので1回だけ閉じる
-	if isImage(f) {
-		m.Close()
-	} else {
-		for _, img := range images {
-			img.Close()
-		}
-	}
-
-	if err != nil {
+	if err := saveContentWithThumbnails(&c, images); err != nil {
 		return xerrors.Errorf("register content: %w", err)
 	}
 
@@ -151,32 +153,14 @@ func RegisterGenerated(groupId int, name, typ, params string) (*db.Content, erro
 
 	t := video.Normalize(typ)
 
-	// params の検証を登録時に前倒しする(壊れた JSON を本番まで持ち込まない)
-	v, err := video.Get(t, params)
+	// params の検証(プラグインの実生成)とフレーム描画は plugin 側に
+	// 閉じている(壊れた JSON を本番まで持ち込まない)
+	images, err := video.RenderThumbnails(t, params, thumbnailNum)
 	if err != nil {
-		return nil, xerrors.Errorf("video create[%s]: %w", t, err)
+		return nil, xerrors.Errorf("render thumbnails[%s]: %w", t, err)
 	}
-	defer v.Release()
 
-	images := make([]*gocv.Mat, thumbnailNum)
-	for idx := range images {
-		m, err := v.Next()
-		if err != nil {
-			return nil, xerrors.Errorf("render frame(%d): %w", idx, err)
-		}
-		// Next は内部バッファを返すプラグインがあるため複製する
-		clone := m.Clone()
-		images[idx] = &clone
-	}
-	defer func() {
-		for _, img := range images {
-			img.Close()
-		}
-	}()
-
-	if images[0].Empty() {
-		return nil, xerrors.New("rendered frame is empty")
-	}
+	bounds := images[0].Bounds()
 
 	now := time.Now()
 	c := db.Content{
@@ -185,8 +169,8 @@ func RegisterGenerated(groupId int, name, typ, params string) (*db.Content, erro
 		Path:      "",
 		Type:      t,
 		Params:    params,
-		Width:     images[0].Cols(),
-		Height:    images[0].Rows(),
+		Width:     bounds.Dx(),
+		Height:    bounds.Dy(),
 		FPS:       30,
 		Frames:    0,
 		CreatedAt: now,
@@ -201,35 +185,40 @@ func RegisterGenerated(groupId int, name, typ, params string) (*db.Content, erro
 }
 
 // saveContentWithThumbnails はコンテンツとサムネイル一式を
-// 1トランザクションで保存する。Mat のクローズは呼び出し側の責務
-func saveContentWithThumbnails(c *db.Content, images []*gocv.Mat) error {
+// 1トランザクションで保存する。
+// argen 生成の Save()/Insert() はパッケージレベルの *sql.DB 直結で
+// tx を通せないため、原子性が必要なこの保存だけは tx へ直接 INSERT する
+func saveContentWithThumbnails(c *db.Content, images []image.Image) error {
 
-	return db.Transaction(func(tx *sql.Tx) error {
+	err := db.Transaction(func(tx *sql.Tx) error {
 
-		_, arErr := c.Save()
-		if arErr != nil {
-			return xerrors.Errorf("content save: %w", arErr)
+		res, err := tx.Exec(
+			`insert into contents(group_id,name,type,path,params,width,height,fps,fourcc,frames,created_at,updated_at)
+			 values (?,?,?,?,?,?,?,?,?,?,?,?)`,
+			c.GroupId, c.Name, c.Type, c.Path, c.Params,
+			c.Width, c.Height, c.FPS, c.Fourcc, c.Frames,
+			c.CreatedAt, c.UpdatedAt)
+		if err != nil {
+			return xerrors.Errorf("content insert: %w", err)
 		}
+
+		lastId, err := res.LastInsertId()
+		if err != nil {
+			return xerrors.Errorf("content last insert id: %w", err)
+		}
+		c.ID = int(lastId)
 
 		for idx, img := range images {
 
-			thumb := db.ContentThumbnail{}
-
-			thumb.ID = c.ID
-			thumb.Seq = idx
-			goimg, err := img.ToImage()
-			if err != nil {
-				return xerrors.Errorf("mat to image: %w", err)
-			}
-
 			buf := new(bytes.Buffer)
-			err = jpeg.Encode(buf, goimg, nil)
+			err = jpeg.Encode(buf, img, nil)
 			if err != nil {
 				return xerrors.Errorf("convert image: %w", err)
 			}
 
-			thumb.Data = buf.Bytes()
-			err = thumb.Insert()
+			_, err = tx.Exec(
+				"insert into content_thumbnails(id,seq,data) values (?,?,?)",
+				c.ID, idx, buf.Bytes())
 			if err != nil {
 				return xerrors.Errorf("thumbnail insert: %w", err)
 			}
@@ -237,6 +226,12 @@ func saveContentWithThumbnails(c *db.Content, images []*gocv.Mat) error {
 
 		return nil
 	})
+
+	if err != nil {
+		// ロールバック時に採番済み ID が残らないようにする
+		c.ID = 0
+	}
+	return err
 }
 
 // CheckMissing returns the contents whose file no longer exists on disk.

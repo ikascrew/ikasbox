@@ -37,6 +37,17 @@ func init() {
 	apiMap["v1/projects/delete"] = newProjectDelete
 }
 
+// AddEndpoint はホストプログラムが API エンドポイントを追加登録する
+// 拡張ポイント。ikasbox をライブラリとして同居起動するホスト
+// (ika-server の -ikasbox モード等)が、ikasbox 側に持ち込めない
+// 自分の機能(server の work file 作成など)を UI から呼べるように
+// するために使う。path は組み込みと同じ形式("v1/server/create" 等)。
+// ルーティングは排他していないため、Start(handler.Listen)より前に
+// 登録を終えること
+func AddEndpoint(path string, f NewParameterFunc) {
+	apiMap[path] = f
+}
+
 type Handle struct {
 	root string
 }
