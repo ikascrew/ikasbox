@@ -3,6 +3,8 @@ import React from "react";
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -28,7 +30,8 @@ class ContentRegisterDialog extends React.Component {
       type: "",
       name: "",
       values: {},     // フィールド名 -> 入力値
-      rawParams: "",  // fields が無い型のときの生 JSON
+      rawParams: "",  // 生 JSON 入力の内容
+      jsonMode: false, // true なら生 JSON を直接編集する
       error: ""
     };
 
@@ -61,20 +64,66 @@ class ContentRegisterDialog extends React.Component {
     });
   }
 
-  // selectType は型を切り替え、その型の既定値で入力値を作り直す
+  // selectType は型を切り替え、その型の既定値で入力値を作り直す。
+  // フォーム定義を持たない型(Spec が nil = 未知のプラグイン)では
+  // 生 JSON 編集へ自動的に切り替える
   selectType(type, types) {
     const list = types || this.state.types;
     const entry = list.find((t) => t.type === type);
 
     const values = {};
-    if (entry && entry.fields) {
+    const hasFields = !!(entry && entry.fields && entry.fields.length > 0);
+
+    if (hasFields) {
       entry.fields.forEach((f) => {
         values[f.name] = f.default || "";
       });
     }
 
-    this.setState({ type: type, values: values });
+    this.setState({
+      type: type,
+      values: values,
+      jsonMode: !hasFields,
+      rawParams: hasFields ? "" : "{}",
+      error: ""
+    });
   }
+
+  // handleToggleJson はフォームと生 JSON を双方向に引き継いで切り替える。
+  // JSON へ移るときは今のフォーム内容を、フォームへ戻るときは JSON の
+  // 内容を(読めれば)入力値に反映する
+  handleToggleJson = (event) => {
+
+    const on = event.target.checked;
+
+    if (on) {
+      let text = "{}";
+      try {
+        text = JSON.stringify(JSON.parse(this.buildParams()), null, 2);
+      } catch {
+        // 組み立てに失敗したら空のオブジェクトから始める
+      }
+      this.setState({ jsonMode: true, rawParams: text, error: "" });
+      return;
+    }
+
+    const entry = this.currentEntry();
+    const values = { ...this.state.values };
+    try {
+      const obj = JSON.parse(this.state.rawParams);
+      if (entry && entry.fields) {
+        entry.fields.forEach((f) => {
+          if (obj[f.name] !== undefined) {
+            values[f.name] = String(obj[f.name]);
+          }
+        });
+      }
+    } catch {
+      // JSON が壊れている場合はフォーム側の値をそのまま残す
+    }
+
+    this.setState({ jsonMode: false, values: values, error: "" });
+  };
 
   handleChangeType = (event) => {
     this.selectType(event.target.value);
@@ -102,7 +151,7 @@ class ContentRegisterDialog extends React.Component {
   // 空欄のフィールドは送らない(プラグイン側の既定に任せる)
   buildParams() {
     const entry = this.currentEntry();
-    if (!entry || !entry.fields || entry.fields.length === 0) {
+    if (this.state.jsonMode || !entry || !entry.fields || entry.fields.length === 0) {
       return this.state.rawParams;
     }
 
@@ -125,8 +174,17 @@ class ContentRegisterDialog extends React.Component {
       return Promise.reject("error");
     }
 
-    // 必須フィールドの未入力はサーバへ行く前に弾く
-    if (entry && entry.fields) {
+    if (this.state.jsonMode) {
+      // 壊れた JSON はサーバへ行く前に弾く(サーバ側は plugin 生成で
+      // 落ちるため、ここで出す方がメッセージが分かりやすい)
+      try {
+        JSON.parse(this.state.rawParams);
+      } catch (e) {
+        this.setState({ error: "Params is not valid JSON: " + e.message });
+        return Promise.reject("error");
+      }
+    } else if (entry && entry.fields) {
+      // 必須フィールドの未入力はサーバへ行く前に弾く
       const missing = entry.fields.find(
         (f) => f.required && !this.state.values[f.name]
       );
@@ -250,9 +308,21 @@ class ContentRegisterDialog extends React.Component {
             fullWidth
           />
 
-          {fields.length > 0
-            ? fields.map((f) => this.renderField(f))
-            : (
+          {/* フォーム定義を持たない型では JSON 編集しか選べない */}
+          <FormControlLabel
+            sx={{ marginTop: 1 }}
+            control={
+              <Switch
+                checked={this.state.jsonMode}
+                onChange={this.handleToggleJson}
+                disabled={fields.length === 0}
+              />
+            }
+            label="Edit params as JSON"
+          />
+
+          {this.state.jsonMode
+            ? (
               <TextField
                 margin="dense"
                 label="Params (JSON)"
@@ -260,10 +330,16 @@ class ContentRegisterDialog extends React.Component {
                 value={this.state.rawParams}
                 onChange={this.handleChangeRaw}
                 multiline
-                minRows={3}
+                minRows={4}
                 fullWidth
+                helperText={
+                  fields.length === 0
+                    ? "This type has no form definition. Write the params JSON directly."
+                    : "The form fields are ignored while this is on."
+                }
               />
-            )}
+            )
+            : fields.map((f) => this.renderField(f))}
 
           {this.state.error !== "" && (
             <DialogContentText sx={{ color: "error.main", marginTop: 1 }}>
