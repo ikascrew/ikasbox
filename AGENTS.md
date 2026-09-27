@@ -2,6 +2,13 @@
 
 This file provides guidance to coding agents when working with code in this repository.
 
+## Task guides — read before starting
+
+| When the task involves… | Read first |
+|---|---|
+| adding/changing a DB column or table, editing `db/*_gen.go` or `migrate()`, "schema", "column", "スキーマ", "テーブル", "列" | [`_docs/db-schema-change.md`](_docs/db-schema-change.md) |
+| adding/changing an endpoint under `handler/api/`, `apiMap`, `AddEndpoint`, a new `API.post/patch/delete` call, "API", "endpoint", "エンドポイント" | [`_docs/api-endpoint.md`](_docs/api-endpoint.md) |
+
 ## Project Overview
 
 ikasbox is a Go server + React SPA (Material UI) for managing video/image content (groups, projects, thumbnails) used by the ikascrew VJ ecosystem. It stores metadata in SQLite (`ikasbox.db`) and uses GoCV (OpenCV) for thumbnail generation, so a working OpenCV install is required to build the Go side. Documentation and comments are largely in Japanese. The old server-rendered Go template UI (MDL) has been removed; the Go server now only serves the JSON API plus the embedded React build.
