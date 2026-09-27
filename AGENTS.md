@@ -34,7 +34,12 @@ npm run preview  # preview the production build
 npm test         # vitest run — unit/component tests, jsdom environment
 ```
 
-Development flow: run the Go server (port 5555) and `npm run dev` together; the dev server proxies API calls. In production, `go run main.go start` alone serves everything: the built React SPA (embedded from `handler/internal/_assets/spa`) plus the JSON API — no separate static file server or `npm run dev` needed.
+Development flow (the maintainer's own session): run the Go server (port 5555) and `npm run dev` together; the dev server proxies API calls. In production, `go run main.go start` alone serves everything: the built React SPA (embedded from `handler/internal/_assets/spa`) plus the JSON API — no separate static file server or `npm run dev` needed.
+
+### Verifying changes
+
+- Verify with static checks and tests only: `go build ./...`, `go vet ./...`, `go test ./...`, and in `frontend/` `npm run build` (confirms the Vite/embed build compiles) + `npm test`. Add colocated vitest tests for new pure logic or presentational components where practical.
+- Do **not** start or stop the Go server (`go run main.go start`) or the Vite dev server (`npm run dev`), and never kill whatever is listening on port 5555/3000 to "free" it — the maintainer runs their own dev session and checks the UI in their own browser. Don't drive a browser to click through the UI either. If a live check is genuinely needed, ask the maintainer to run it.
 
 ## Architecture
 
